@@ -60,7 +60,7 @@ export default function TiendaScreen() {
                 </Text>
 
                 <Text style={styles.balanceValue}>
-                    🧉 185
+                    🧉 0
                 </Text>
             </View>
 
