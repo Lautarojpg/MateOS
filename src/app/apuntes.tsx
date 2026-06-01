@@ -1,3 +1,4 @@
+import { router } from "expo-router";
 import { useState } from "react";
 import {
     ScrollView,
@@ -8,7 +9,11 @@ import {
     useWindowDimensions,
 } from "react-native";
 
-export default function BibliotecaScreen() {
+type Props = {
+    onNavigate?: (screen: string) => void;
+};
+
+export default function BibliotecaScreen({ onNavigate }: Props = {}) {
     const [selectedApunte, setSelectedApunte] = useState(1);
 
     const { width } = useWindowDimensions();
@@ -198,7 +203,7 @@ export default function BibliotecaScreen() {
 
                 <TouchableOpacity
                     style={styles.openButton}
-                >
+                    onPress={() => onNavigate ? onNavigate('lector') : router.push('/lector')}>
                     <Text style={styles.openButtonText}>
                         Abrir PDF
                     </Text>

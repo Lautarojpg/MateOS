@@ -30,7 +30,7 @@ export default function HomeScreen() {
 
       case 'apuntes':
         // BibliotecaScreen tiene su propio ScrollView
-        return <BibliotecaScreen />;
+        return <BibliotecaScreen onNavigate={navigateTo} />;
 
       case 'tienda':
         return <TiendaScreen />;
