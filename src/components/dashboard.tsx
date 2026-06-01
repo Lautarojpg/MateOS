@@ -1,33 +1,123 @@
-import { Image, ScrollView, StyleSheet, Text, TouchableOpacity, View } from "react-native";
+import React, { useState } from "react";
+import { View, Text, StyleSheet, ScrollView, TouchableOpacity, Image } from "react-native";
+import EnfoqueScreen from "../app/enfoque";
+import BibliotecaScreen from "../app/apuntes";
+import PdfViewer from "./pdf-viewer";
+
+// Pantallas disponibles en el dashboard
+type Screen = 'inicio' | 'enfoque' | 'lector' | 'apuntes' | 'cuestionario';
 
 export default function HomeScreen() {
+  // Estado local: controla qué panel se muestra, sin cambiar de página
+  const [currentScreen, setCurrentScreen] = useState<Screen>('inicio');
+
+  // Navega internamente sin salir del dashboard
+  const navigateTo = (screen: Screen) => {
+    setCurrentScreen(screen);
+  };
+
+  // Renderiza el contenido dinámico del panel derecho según el estado
+  const renderMainContent = () => {
+    switch (currentScreen) {
+      case 'enfoque':
+        // EnfoqueScreen tiene su propio ScrollView, se monta directo
+        return <EnfoqueScreen />;
+
+      case 'lector':
+        // PdfViewer tiene flex:1, se adapta al panel
+        return <PdfViewer />;
+
+      case 'apuntes':
+        // BibliotecaScreen tiene su propio ScrollView
+        return <BibliotecaScreen />;
+
+      case 'inicio':
+      default:
+        return (
+          <ScrollView style={{ flex: 1 }} contentContainerStyle={styles.mainPanelContent}>
+            {/* Fila de 4 Tarjetas de Métricas Superiores */}
+            <View style={styles.metricsRow}>
+              <View style={[styles.metricCard, { backgroundColor: '#E8F5E9' }]}>
+                <Text style={styles.metricIcon}>⏱️</Text>
+                <View>
+                  <Text style={styles.metricValue}>0</Text>
+                  <Text style={styles.metricLabel}>min hoy</Text>
+                </View>
+              </View>
+
+              <View style={[styles.metricCard, { backgroundColor: '#EFEBE9' }]}>
+                <Text style={styles.metricIcon}>🎯</Text>
+                <View>
+                  <Text style={styles.metricValue}>0%</Text>
+                  <Text style={styles.metricLabel}>enfoque</Text>
+                </View>
+              </View>
+
+              <View style={[styles.metricCard, { backgroundColor: '#E8F5E9' }]}>
+                <Text style={styles.metricIcon}>✅</Text>
+                <View>
+                  <Text style={styles.metricValue}>0</Text>
+                  <Text style={styles.metricLabel}>completadas</Text>
+                </View>
+              </View>
+
+              <View style={[styles.metricCard, { backgroundColor: '#FDF5E6' }]}>
+                <Text style={styles.metricIcon}>⚠️</Text>
+                <View>
+                  <Text style={styles.metricValue}>0</Text>
+                  <Text style={styles.metricLabel}>pendientes</Text>
+                </View>
+              </View>
+            </View>
+
+            {/* Sección de Acciones Rápidas */}
+            <View style={styles.actionsContainer}>
+              <Text style={styles.sectionTitle}>Acciones Rápidas</Text>
+              <Text style={styles.sectionSubtitle}>Accede rápidamente a las funciones principales</Text>
+
+              <View style={styles.gridAcciones}>
+                <TouchableOpacity style={styles.actionButton} onPress={() => navigateTo('enfoque')}>
+                  <Text style={styles.actionButtonText}>🎯 Modo Enfoque</Text>
+                </TouchableOpacity>
+                <TouchableOpacity style={styles.actionButton} onPress={() => navigateTo('lector')}>
+                  <Text style={styles.actionButtonText}>📖 Leer PDF</Text>
+                </TouchableOpacity>
+                <TouchableOpacity style={styles.actionButton} onPress={() => navigateTo('apuntes')}>
+                  <Text style={styles.actionButtonText}>📚 Apuntes</Text>
+                </TouchableOpacity>
+              </View>
+            </View>
+          </ScrollView>
+        );
+    }
+  };
+
   return (
     <View style={styles.container}>
 
-      {/* HEADER SUPERIOR */}
+      {/* ── HEADER SUPERIOR (ESTÁTICO) ── */}
       <View style={styles.header}>
         <Text style={styles.logo}>Inicio</Text>
 
         <View style={styles.headerActions}>
-          <View style={[styles.headerBadge, { backgroundColor: '#F0E6D2', borderColor: '#000', borderWidth: 1 }]}>
+          <View style={[styles.headerBadge, { backgroundColor: '#F0E6D2' }]}>
             <Text style={styles.badgeTextBrown}>🧉 0</Text>
           </View>
-          <View style={[styles.headerBadge, { backgroundColor: '#FFEBE0', borderColor: '#000', borderWidth: 1 }]}>
+          <View style={[styles.headerBadge, { backgroundColor: '#FFEBE0' }]}>
             <Text style={styles.badgeTextOrange}>🔥 1 días</Text>
           </View>
         </View>
       </View>
 
-      {/* CUERPO PRINCIPAL (SIDEBAR + CONTENIDO) */}
+      {/* ── CUERPO PRINCIPAL (SIDEBAR + PANEL) ── */}
       <View style={styles.contentBody}>
 
-        {/* SIDEBAR IZQUIERDO (Limpio, sin bordes toscos de botones) */}
+        {/* ── SIDEBAR IZQUIERDO (ESTÁTICO) ── */}
         <View style={styles.sidebar}>
 
           {/* Info del Compañero (Carpi) */}
           <View style={styles.profileSection}>
             <View style={styles.avatarPlaceholder}>
-              {/* RUTA DE TU SPRITE: Cambiá este require por la ruta local de tu PNG exportado */}
               <Image
                 source={require('../../assets/sprite/carpincho.gif')}
                 style={styles.spriteImage}
@@ -36,27 +126,39 @@ export default function HomeScreen() {
             </View>
             <Text style={styles.username}>Carpi</Text>
             <Text style={styles.subtext}>Por Nacer - Nivel 1</Text>
-            <Text style={styles.statsMini}>⚡ 100%  🧉0 XP</Text>
+            <Text style={styles.statsMini}>⚡ 100%  🧉 0 XP</Text>
           </View>
 
           <View style={styles.divider} />
 
-          {/* Menú de Navegación */}
+          {/* Menú de Navegación – ahora actualiza estado local */}
           <View style={styles.menuContainer}>
-            <TouchableOpacity style={[styles.menuItem, styles.menuItemActive]}>
-              <Text style={[styles.menuText, styles.menuTextActive]}>🏠 Inicio</Text>
+            <TouchableOpacity
+              style={[styles.menuItem, currentScreen === 'inicio' && styles.menuItemActive]}
+              onPress={() => navigateTo('inicio')}
+            >
+              <Text style={[styles.menuText, currentScreen === 'inicio' && styles.menuTextActive]}>🏠 Inicio</Text>
             </TouchableOpacity>
 
-            <TouchableOpacity style={styles.menuItem}>
-              <Text style={styles.menuText}>🎯 Enfoque</Text>
+            <TouchableOpacity
+              style={[styles.menuItem, currentScreen === 'enfoque' && styles.menuItemActive]}
+              onPress={() => navigateTo('enfoque')}
+            >
+              <Text style={[styles.menuText, currentScreen === 'enfoque' && styles.menuTextActive]}>🎯 Enfoque</Text>
             </TouchableOpacity>
 
-            <TouchableOpacity style={styles.menuItem}>
-              <Text style={styles.menuText}>📅 Calendario</Text>
+            <TouchableOpacity
+              style={[styles.menuItem, currentScreen === 'apuntes' && styles.menuItemActive]}
+              onPress={() => navigateTo('apuntes')}
+            >
+              <Text style={[styles.menuText, currentScreen === 'apuntes' && styles.menuTextActive]}>📚 Apuntes</Text>
             </TouchableOpacity>
 
-            <TouchableOpacity style={styles.menuItem}>
-              <Text style={styles.menuText}>📖 Apuntes</Text>
+            <TouchableOpacity
+              style={[styles.menuItem, currentScreen === 'lector' && styles.menuItemActive]}
+              onPress={() => navigateTo('lector')}
+            >
+              <Text style={[styles.menuText, currentScreen === 'lector' && styles.menuTextActive]}>📖 Lector</Text>
             </TouchableOpacity>
           </View>
 
@@ -67,63 +169,11 @@ export default function HomeScreen() {
           </View>
         </View>
 
-        {/* PANEL PRINCIPAL DERECHO */}
-        <ScrollView style={styles.mainPanel} contentContainerStyle={styles.mainPanelContent}>
-
-          {/* Fila de 4 Tarjetas de Métricas Superiores (Con bordes negros marcados) */}
-          <View style={styles.metricsRow}>
-            <View style={[styles.metricCard, { backgroundColor: '#E8F5E9' }]}>
-              <Text style={styles.metricIcon}>⏱️</Text>
-              <View>
-                <Text style={styles.metricValue}>0</Text>
-                <Text style={styles.metricLabel}>min hoy</Text>
-              </View>
-            </View>
-
-            <View style={[styles.metricCard, { backgroundColor: '#EFEBE9' }]}>
-              <Text style={styles.metricIcon}>🎯</Text>
-              <View>
-                <Text style={styles.metricValue}>0%</Text>
-                <Text style={styles.metricLabel}>enfoque</Text>
-              </View>
-            </View>
-
-            <View style={[styles.metricCard, { backgroundColor: '#E8F5E9' }]}>
-              <Text style={styles.metricIcon}>✅</Text>
-              <View>
-                <Text style={styles.metricValue}>0</Text>
-                <Text style={styles.metricLabel}>completadas</Text>
-              </View>
-            </View>
-
-            <View style={[styles.metricCard, { backgroundColor: '#FDF5E6' }]}>
-              <Text style={styles.metricIcon}>⚠️</Text>
-              <View>
-                <Text style={styles.metricValue}>0</Text>
-                <Text style={styles.metricLabel}>pendientes</Text>
-              </View>
-            </View>
-          </View>
-
-          {/* Sección de Contenido Inferior (Acciones Rápidas) */}
-          <View style={styles.actionsContainer}>
-            <Text style={styles.sectionTitle}>Acciones Rápidas</Text>
-            <Text style={styles.sectionSubtitle}>Accede rápidamente a las funciones principales</Text>
-
-            <View style={styles.gridAcciones}>
-              <TouchableOpacity style={styles.actionButton}>
-                <Text style={styles.actionButtonText}>🎯 Modo Enfoque</Text>
-              </TouchableOpacity>
-              <TouchableOpacity style={styles.actionButton}>
-                <Text style={styles.actionButtonText}>📖 Leer PDF</Text>
-              </TouchableOpacity>
-              <TouchableOpacity style={styles.actionButton}>
-                <Text style={styles.actionButtonText}>📅 Calendario</Text>
-              </TouchableOpacity>
-            </View>
-          </View>
-
-        </ScrollView>
+        {/* ── PANEL PRINCIPAL DERECHO (DINÁMICO) ── */}
+        {/* View con flex:1 para que cada pantalla ocupe todo el espacio */}
+        <View style={styles.mainPanel}>
+          {renderMainContent()}
+        </View>
 
       </View>
 
@@ -134,13 +184,13 @@ export default function HomeScreen() {
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: "#F4F1EA", // Fondo marfil/marrón muy suave para calidez
+    backgroundColor: "#F4F1EA",
   },
   header: {
     height: 65,
     backgroundColor: "#FFFFFF",
     borderBottomWidth: 2,
-    borderBottomColor: "#000000", // Borde negro nítido inferior
+    borderBottomColor: "#000000",
     paddingHorizontal: 24,
     flexDirection: "row",
     justifyContent: "space-between",
@@ -149,7 +199,7 @@ const styles = StyleSheet.create({
   logo: {
     fontSize: 20,
     fontWeight: "700",
-    color: "#1B5E20", // Verde bosque oscuro
+    color: "#1B5E20",
   },
   headerActions: {
     flexDirection: "row",
@@ -158,33 +208,27 @@ const styles = StyleSheet.create({
   headerBadge: {
     paddingHorizontal: 12,
     paddingVertical: 6,
-    borderRadius: 8, // Badges más rectangulares para un look estructurado
+    borderRadius: 20,
     justifyContent: 'center',
     alignItems: 'center',
   },
   badgeTextBrown: {
     color: '#5D4037',
-    fontWeight: '700'
+    fontWeight: '700',
   },
   badgeTextOrange: {
     color: '#E65100',
-    fontWeight: '700'
-  },
-  badgeTextGreen: {
-    color: '#2E7D32',
-    fontWeight: '700'
+    fontWeight: '700',
   },
   contentBody: {
     flex: 1,
     flexDirection: "row",
   },
-
-  // SIDEBAR STYLES (Sin bordes en botones individuales)
   sidebar: {
     width: 260,
     backgroundColor: "#FFFFFF",
     borderRightWidth: 2,
-    borderRightColor: "#000000", // Separación principal bien definida
+    borderRightColor: "#000000",
     paddingTop: 20,
     justifyContent: 'space-between',
   },
@@ -197,7 +241,7 @@ const styles = StyleSheet.create({
     width: 85,
     height: 85,
     borderRadius: 12,
-    backgroundColor: '#EFEBE9', // Fondo marrón grisáceo suave
+    backgroundColor: '#EFEBE9',
     justifyContent: 'center',
     alignItems: 'center',
     marginBottom: 10,
@@ -210,7 +254,7 @@ const styles = StyleSheet.create({
   username: {
     fontSize: 16,
     fontWeight: '700',
-    color: '#2E1C0C', // Marrón oscuro
+    color: '#2E1C0C',
   },
   subtext: {
     fontSize: 12,
@@ -224,7 +268,7 @@ const styles = StyleSheet.create({
   },
   divider: {
     height: 2,
-    backgroundColor: '#000000',
+    backgroundColor: '#F0F0F0',
     marginVertical: 10,
     marginHorizontal: 15,
   },
@@ -239,21 +283,21 @@ const styles = StyleSheet.create({
     marginBottom: 4,
   },
   menuItemActive: {
-    backgroundColor: '#2E7D32', // Verde activo
+    backgroundColor: '#2E7D32',
   },
   menuText: {
     fontSize: 15,
-    color: '#000000', // Texto del menú en negro
+    color: '#000000',
     fontWeight: '600',
   },
   menuTextActive: {
-    color: '#FFFFFF', // Texto activo en blanco sobre fondo verde
+    color: '#FFFFFF',
     fontWeight: '700',
   },
   sidebarFooter: {
     padding: 20,
     borderTopWidth: 2,
-    borderTopColor: '#000000',
+    borderTopColor: '#000',
     alignItems: 'center',
   },
   footerLogo: {
@@ -265,8 +309,8 @@ const styles = StyleSheet.create({
     fontSize: 11,
     color: '#795548',
   },
-
-  // MAIN PANEL STYLES
+  // El panel principal ahora es un View con flex:1
+  // Cada pantalla maneja su propio scroll internamente
   mainPanel: {
     flex: 1,
   },
@@ -287,7 +331,7 @@ const styles = StyleSheet.create({
     borderRadius: 12,
     gap: 12,
     borderWidth: 2,
-    borderColor: '#000000', // Borde negro marcado para las métricas
+    borderColor: '#000000',
   },
   metricIcon: {
     fontSize: 20,
@@ -302,14 +346,12 @@ const styles = StyleSheet.create({
     color: '#2E1C0C',
     fontWeight: '600',
   },
-
-  // ACCIONES RAPIDAS (Con bordes negros limpios)
   actionsContainer: {
     backgroundColor: '#FFFFFF',
     borderRadius: 12,
     padding: 24,
     borderWidth: 2,
-    borderColor: '#000000', // Borde negro marcado
+    borderColor: '#000000',
   },
   sectionTitle: {
     fontSize: 18,
@@ -333,7 +375,7 @@ const styles = StyleSheet.create({
     height: 60,
     backgroundColor: '#F5F5F5',
     borderWidth: 2,
-    borderColor: '#000000', // Botones del panel con borde negro nítido
+    borderColor: '#000000',
     borderRadius: 8,
     justifyContent: 'center',
     alignItems: 'center',
