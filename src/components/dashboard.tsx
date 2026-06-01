@@ -1,11 +1,12 @@
-import React, { useState } from "react";
-import { View, Text, StyleSheet, ScrollView, TouchableOpacity, Image } from "react-native";
-import EnfoqueScreen from "../app/enfoque";
+import { useState } from "react";
+import { Image, ScrollView, StyleSheet, Text, TouchableOpacity, View } from "react-native";
 import BibliotecaScreen from "../app/apuntes";
+import EnfoqueScreen from "../app/enfoque";
+import TiendaScreen from "../app/tienda";
 import PdfViewer from "./pdf-viewer";
 
 // Pantallas disponibles en el dashboard
-type Screen = 'inicio' | 'enfoque' | 'lector' | 'apuntes' | 'cuestionario';
+type Screen = 'inicio' | 'enfoque' | 'lector' | 'apuntes' | 'cuestionario' | 'tienda';
 
 export default function HomeScreen() {
   // Estado local: controla qué panel se muestra, sin cambiar de página
@@ -30,6 +31,9 @@ export default function HomeScreen() {
       case 'apuntes':
         // BibliotecaScreen tiene su propio ScrollView
         return <BibliotecaScreen />;
+
+      case 'tienda':
+        return <TiendaScreen />;
 
       case 'inicio':
       default:
@@ -84,6 +88,9 @@ export default function HomeScreen() {
                 </TouchableOpacity>
                 <TouchableOpacity style={styles.actionButton} onPress={() => navigateTo('apuntes')}>
                   <Text style={styles.actionButtonText}>📚 Apuntes</Text>
+                </TouchableOpacity>
+                <TouchableOpacity style={styles.actionButton} onPress={() => navigateTo('tienda')}>
+                  <Text style={styles.actionButtonText}> 🎓 Tienda</Text>
                 </TouchableOpacity>
               </View>
             </View>
@@ -159,6 +166,12 @@ export default function HomeScreen() {
               onPress={() => navigateTo('lector')}
             >
               <Text style={[styles.menuText, currentScreen === 'lector' && styles.menuTextActive]}>📖 Lector</Text>
+            </TouchableOpacity>
+            <TouchableOpacity
+              style={[styles.menuItem, currentScreen === 'tienda' && styles.menuItemActive]}
+              onPress={() => navigateTo('tienda')}
+            >
+              <Text style={[styles.menuText, currentScreen === 'tienda' && styles.menuTextActive]}>🎓 Tienda</Text>
             </TouchableOpacity>
           </View>
 
