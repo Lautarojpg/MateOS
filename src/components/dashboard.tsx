@@ -18,7 +18,7 @@ import TiendaScreen from "../app/tienda";
 import PdfViewer from "./pdf-viewer";
 
 // ── Tipos ──────────────────────────────────────────────────────────────────────
-type Screen = "inicio" | "enfoque" | "lector" | "apuntes" | "cuestionario";
+type Screen = "inicio" | "enfoque" | "lector" | "apuntes" | "cuestionario" | "tienda";
 type TipoEvento = "parcial" | "entrega" | "coloquio" | "clase" | "reunion";
 
 type Evento = {
