@@ -1,36 +1,54 @@
-import { useState } from "react";
 import {
     ScrollView,
     StyleSheet,
     Text,
     TouchableOpacity,
     View,
+    useWindowDimensions,
 } from "react-native";
 
-export default function BibliotecaScreen() {
-    const [selectedApunte, setSelectedApunte] = useState(1);
+export default function TiendaScreen() {
+    const { width } = useWindowDimensions();
 
-    const apuntes = [
+    const isSmallScreen = width < 380;
+
+    const cardWidth = isSmallScreen ? "100%" : "48%";
+
+    const productos = [
         {
             id: 1,
-            nombre: "Química - Unidad 1",
-            materia: "Química",
-            paginas: 24,
-            icono: "📄",
+            nombre: "Maceta de Barro",
+            descripcion: "Un hogar cálido para Carpi",
+            precio: 30,
+            icono: "🪴",
         },
         {
             id: 2,
-            nombre: "Matemática Discreta",
-            materia: "Matemática",
-            paginas: 37,
-            icono: "📘",
+            nombre: "Regadera",
+            descripcion: "Mantiene feliz a tu compañero",
+            precio: 45,
+            icono: "🚿",
         },
         {
             id: 3,
-            nombre: "Base de Datos",
-            materia: "Informática",
-            paginas: 52,
-            icono: "📕",
+            nombre: "Fertilizante",
+            descripcion: "Acelera el crecimiento",
+            precio: 60,
+            icono: "🌿",
+        },
+        {
+            id: 4,
+            nombre: "Sombrero",
+            descripcion: "Accesorio decorativo",
+            precio: 75,
+            icono: "🎩",
+        },
+        {
+            id: 5,
+            nombre: "Fondo Bosque",
+            descripcion: "Nuevo escenario para Carpi",
+            precio: 120,
+            icono: "🌳",
         },
     ];
 
@@ -40,116 +58,57 @@ export default function BibliotecaScreen() {
             contentContainerStyle={{ paddingBottom: 30 }}
         >
             <Text style={styles.title}>
-                Biblioteca
+                Tienda
             </Text>
 
-            {/* LISTA DE APUNTES */}
-
-            <View style={styles.card}>
-                <Text style={styles.cardTitle}>
-                    Mis Apuntes
+            <View style={styles.balanceCard}>
+                <Text style={styles.balanceLabel}>
+                    Tus Mates
                 </Text>
 
-                <Text style={styles.cardDescription}>
-                    Selecciona un PDF para leerlo
+                <Text style={styles.balanceValue}>
+                    🧉 185
                 </Text>
+            </View>
 
-                {apuntes.map((item) => (
-                    <TouchableOpacity
+            <View style={styles.productsContainer}>
+                {productos.map((item) => (
+                    <View
                         key={item.id}
                         style={[
-                            styles.apunteCard,
-                            selectedApunte === item.id &&
-                            styles.selectedApunte,
+                            styles.productCard,
+                            { width: cardWidth },
                         ]}
-                        onPress={() =>
-                            setSelectedApunte(item.id)
-                        }
                     >
-                        <View style={styles.iconBox}>
-                            <Text style={styles.iconText}>
+                        <View style={styles.iconContainer}>
+                            <Text style={styles.icon}>
                                 {item.icono}
                             </Text>
                         </View>
 
-                        <View style={{ flex: 1 }}>
-                            <Text style={styles.apunteTitle}>
-                                {item.nombre}
-                            </Text>
+                        <Text style={styles.productTitle}>
+                            {item.nombre}
+                        </Text>
 
-                            <Text style={styles.apunteInfo}>
-                                {item.materia} • {item.paginas} páginas
+                        <Text style={styles.productDescription}>
+                            {item.descripcion}
+                        </Text>
+
+                        <View style={styles.priceBadge}>
+                            <Text style={styles.priceText}>
+                                🧉 {item.precio}
                             </Text>
                         </View>
 
-                        {selectedApunte === item.id && (
-                            <Text style={styles.check}>
-                                ✓
+                        <TouchableOpacity
+                            style={styles.buyButton}
+                        >
+                            <Text style={styles.buyButtonText}>
+                                Comprar
                             </Text>
-                        )}
-                    </TouchableOpacity>
+                        </TouchableOpacity>
+                    </View>
                 ))}
-            </View>
-
-            {/* LECTOR */}
-
-            <View style={styles.card}>
-                <Text style={styles.cardTitle}>
-                    Lector PDF
-                </Text>
-
-                <Text style={styles.cardDescription}>
-                    Visualiza el apunte seleccionado
-                </Text>
-
-                <View style={styles.readerBox}>
-                    <Text style={styles.readerIcon}>
-                        📖
-                    </Text>
-
-                    <Text style={styles.readerTitle}>
-                        {apuntes.find(
-                            (a) => a.id === selectedApunte
-                        )?.nombre}
-                    </Text>
-
-                    <Text style={styles.readerText}>
-                        Aquí se mostrará el PDF utilizando
-                        react-native-pdf.
-                    </Text>
-                </View>
-
-                <TouchableOpacity style={styles.openButton}>
-                    <Text style={styles.openButtonText}>
-                        Abrir PDF
-                    </Text>
-                </TouchableOpacity>
-            </View>
-
-            {/* SUBIR PDF */}
-
-            <View style={styles.card}>
-                <Text style={styles.cardTitle}>
-                    Subir Apunte
-                </Text>
-
-                <Text style={styles.cardDescription}>
-                    Agrega nuevos PDFs a tu biblioteca
-                </Text>
-
-                <TouchableOpacity style={styles.uploadArea}>
-                    <Text style={styles.uploadIcon}>
-                        ⬆️
-                    </Text>
-
-                    <Text style={styles.uploadTitle}>
-                        Seleccionar PDF
-                    </Text>
-
-                    <Text style={styles.uploadText}>
-                        Toca aquí para elegir un archivo
-                    </Text>
-                </TouchableOpacity>
             </View>
         </ScrollView>
     );
@@ -165,146 +124,105 @@ const styles = StyleSheet.create({
     title: {
         fontSize: 28,
         fontWeight: "700",
-        marginBottom: 20,
         color: "#111827",
+        marginBottom: 20,
     },
 
-    card: {
-        backgroundColor: "#FFF",
+    balanceCard: {
+        backgroundColor: "#EEF7F2",
         borderRadius: 16,
-        padding: 18,
+        padding: 20,
+        alignItems: "center",
         marginBottom: 18,
         borderWidth: 1,
-        borderColor: "#E5E7EB",
+        borderColor: "#D8E8DD",
     },
 
-    cardTitle: {
-        fontSize: 18,
-        fontWeight: "600",
-        color: "#111827",
-    },
-
-    cardDescription: {
+    balanceLabel: {
         color: "#6B7280",
-        marginTop: 4,
-        marginBottom: 16,
-        fontSize: 13,
+        fontSize: 14,
     },
 
-    apunteCard: {
-        flexDirection: "row",
-        alignItems: "center",
-        borderWidth: 1,
-        borderColor: "#E5E7EB",
-        borderRadius: 14,
-        padding: 14,
-        marginBottom: 10,
-    },
-
-    selectedApunte: {
-        backgroundColor: "#F0FDF4",
-        borderColor: "#22C55E",
-    },
-
-    iconBox: {
-        width: 50,
-        height: 50,
-        borderRadius: 12,
-        backgroundColor: "#1F8F3A",
-        justifyContent: "center",
-        alignItems: "center",
-        marginRight: 14,
-    },
-
-    iconText: {
-        fontSize: 22,
-    },
-
-    apunteTitle: {
-        fontSize: 15,
-        fontWeight: "600",
-        color: "#111827",
-    },
-
-    apunteInfo: {
-        fontSize: 13,
-        color: "#6B7280",
-        marginTop: 4,
-    },
-
-    check: {
-        fontSize: 24,
-        color: "#22C55E",
-    },
-
-    readerBox: {
-        height: 220,
-        borderRadius: 16,
-        borderWidth: 1,
-        borderColor: "#D1D5DB",
-        backgroundColor: "#FAFAFA",
-        justifyContent: "center",
-        alignItems: "center",
-        marginBottom: 16,
-    },
-
-    readerIcon: {
-        fontSize: 42,
-        marginBottom: 10,
-    },
-
-    readerTitle: {
-        fontSize: 16,
-        fontWeight: "600",
-        color: "#111827",
-    },
-
-    readerText: {
-        color: "#6B7280",
+    balanceValue: {
         marginTop: 8,
-        textAlign: "center",
-        paddingHorizontal: 20,
+        fontSize: 28,
+        fontWeight: "700",
+        color: "#1F8F3A",
     },
 
-    openButton: {
-        backgroundColor: "#1F8F3A",
-        height: 52,
-        borderRadius: 12,
-        justifyContent: "center",
+    productsContainer: {
+        flexDirection: "row",
+        flexWrap: "wrap",
+        justifyContent: "space-between",
+    },
+
+    productCard: {
+        backgroundColor: "#FFFFFF",
+        borderRadius: 18,
+        padding: 14,
+        marginBottom: 16,
+        borderWidth: 1,
+        borderColor: "#E5E7EB",
         alignItems: "center",
     },
 
-    openButtonText: {
-        color: "#FFF",
-        fontWeight: "600",
+    iconContainer: {
+        width: 65,
+        height: 65,
+        borderRadius: 32.5,
+        backgroundColor: "#EEF7F2",
+        justifyContent: "center",
+        alignItems: "center",
+        marginBottom: 12,
+    },
+
+    icon: {
+        fontSize: 30,
+    },
+
+    productTitle: {
         fontSize: 15,
-    },
-
-    uploadArea: {
-        height: 140,
-        borderWidth: 2,
-        borderStyle: "dashed",
-        borderColor: "#22C55E",
-        borderRadius: 16,
-        justifyContent: "center",
-        alignItems: "center",
-        backgroundColor: "#F0FDF4",
-    },
-
-    uploadIcon: {
-        fontSize: 32,
-        marginBottom: 8,
-    },
-
-    uploadTitle: {
-        fontSize: 16,
         fontWeight: "600",
         color: "#111827",
+        textAlign: "center",
+        minHeight: 38,
     },
 
-    uploadText: {
-        marginTop: 4,
+    productDescription: {
+        marginTop: 6,
         color: "#6B7280",
-        fontSize: 13,
+        textAlign: "center",
+        fontSize: 12,
+        minHeight: 35,
+    },
+
+    priceBadge: {
+        marginTop: 12,
+        backgroundColor: "#F5EFE6",
+        paddingHorizontal: 12,
+        paddingVertical: 6,
+        borderRadius: 10,
+    },
+
+    priceText: {
+        color: "#B45309",
+        fontWeight: "700",
+        fontSize: 14,
+    },
+
+    buyButton: {
+        marginTop: 14,
+        backgroundColor: "#1F8F3A",
+        width: "100%",
+        height: 42,
+        borderRadius: 10,
+        justifyContent: "center",
+        alignItems: "center",
+    },
+
+    buyButtonText: {
+        color: "#FFFFFF",
+        fontSize: 14,
+        fontWeight: "600",
     },
 });
