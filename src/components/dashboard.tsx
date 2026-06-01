@@ -18,7 +18,16 @@ import TiendaScreen from "../app/tienda";
 import PdfViewer from "./pdf-viewer";
 
 // ── Tipos ──────────────────────────────────────────────────────────────────────
-type Screen = "inicio" | "enfoque" | "lector" | "apuntes" | "cuestionario" | "tienda";
+const MENU_ITEMS = [
+  { screen: "inicio", icon: "🏠", label: "Inicio" },
+  { screen: "enfoque", icon: "🎯", label: "Enfoque" },
+  { screen: "apuntes", icon: "📚", label: "Apuntes" },
+  { screen: "lector", icon: "📖", label: "Lector" },
+  { screen: "cuestionario", icon: "❓", label: "Cuestionarios" },
+  { screen: "tienda", icon: "🛒", label: "Tienda" },
+] as const;
+
+type Screen = typeof MENU_ITEMS[number]["screen"];
 type TipoEvento = "parcial" | "entrega" | "coloquio" | "clase" | "reunion";
 
 type Evento = {
@@ -449,16 +458,7 @@ export default function HomeScreen() {
           <View style={styles.divider} />
 
           <View style={styles.menuContainer}>
-            {(
-              [
-                { screen: "inicio", icon: "🏠", label: "Inicio" },
-                { screen: "enfoque", icon: "🎯", label: "Enfoque" },
-                { screen: "apuntes", icon: "📚", label: "Apuntes" },
-                { screen: "lector", icon: "📖", label: "Lector" },
-                { screen: "cuestionario", icon: "❓", label: "Cuestionarios" },
-                { screen: "tienda", icon: "🛒", label: "Tienda" },
-              ] as { screen: Screen; icon: string; label: string }[]
-            ).map(({ screen, icon, label }) => (
+            {MENU_ITEMS.map(({ screen, icon, label }) => (
               <TouchableOpacity
                 key={screen}
                 style={[styles.menuItem, currentScreen === screen && styles.menuItemActive]}
