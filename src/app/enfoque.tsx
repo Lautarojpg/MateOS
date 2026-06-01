@@ -1,3 +1,4 @@
+import { router } from "expo-router";
 import { useState } from "react";
 import {
   ScrollView,
@@ -9,6 +10,8 @@ import {
 
 export default function EnfoqueScreen() {
   const [selectedMode, setSelectedMode] = useState(2);
+  const [selectedMateria, setSelectedMateria] = useState("Química");
+  const [mostrarMaterias, setMostrarMaterias] = useState(false);
 
   const modos = [
     {
@@ -16,6 +19,7 @@ export default function EnfoqueScreen() {
       nombre: "Pomodoro",
       descripcion: "25 min de enfoque + 5 min descanso",
       tiempo: "25 min",
+      minutos: 25,
       icono: "⏱️",
       color: "#2E7D32",
     },
@@ -24,6 +28,7 @@ export default function EnfoqueScreen() {
       nombre: "Enfoque Profundo",
       descripcion: "50 min de trabajo concentrado",
       tiempo: "50 min",
+      minutos: 50,
       icono: "🧠",
       color: "#00ACC1",
     },
@@ -32,11 +37,24 @@ export default function EnfoqueScreen() {
       nombre: "Sesión Rápida",
       descripcion: "10 min para tareas cortas",
       tiempo: "10 min",
+      minutos: 10,
       icono: "⚡",
       color: "#FB8C00",
     },
   ];
 
+  const materias = [
+    "Álgebra",
+    "Física",
+    "Química",
+    "Economía",
+    "Taller",
+    "Otro",
+  ];
+
+  const modoSeleccionado = modos.find(
+    (m) => m.id === selectedMode
+  );
   return (
     <ScrollView
       style={styles.container}
@@ -102,23 +120,45 @@ export default function EnfoqueScreen() {
 
       {/* MATERIA */}
 
-      <View style={styles.card}>
-        <Text style={styles.cardTitle}>Materia</Text>
+        <View style={styles.card}>
+  <Text style={styles.cardTitle}>Materia</Text>
 
-        <Text style={styles.cardDescription}>
-          ¿Qué vas a estudiar en esta sesión?
-        </Text>
+  <Text style={styles.cardDescription}>
+    ¿Qué vas a estudiar en esta sesión?
+  </Text>
 
-        <TouchableOpacity style={styles.select}>
-          <Text style={styles.selectText}>
-            Química
-          </Text>
+  <TouchableOpacity
+    style={styles.select}
+    onPress={() =>
+      setMostrarMaterias(!mostrarMaterias)
+    }
+  >
+    <Text style={styles.selectText}>
+      {selectedMateria}
+    </Text>
 
-          <Text style={styles.arrow}>
-            ▼
-          </Text>
+    <Text style={styles.arrow}>
+      ▼
+    </Text>
+  </TouchableOpacity>
+
+  {mostrarMaterias && (
+    <View style={styles.dropdown}>
+      {materias.map((materia) => (
+        <TouchableOpacity
+          key={materia}
+          style={styles.dropdownItem}
+          onPress={() => {
+            setSelectedMateria(materia);
+            setMostrarMaterias(false);
+          }}
+        >
+          <Text>{materia}</Text>
         </TouchableOpacity>
-      </View>
+      ))}
+    </View>
+  )}
+</View>
 
       {/* CARPI */}
 
@@ -144,15 +184,25 @@ export default function EnfoqueScreen() {
 
       {/* BOTÓN */}
 
-      <TouchableOpacity style={styles.startButton}>
-        <Text style={styles.playIcon}>
-          ▶
-        </Text>
+    <TouchableOpacity
+      style={styles.startButton}
+      onPress={() =>
+        router.push({
+          pathname: "/temporizador",
+          params: {
+            minutos: modoSeleccionado?.minutos ?? 25,
+            modo: modoSeleccionado?.nombre,
+            materia: selectedMateria,
+          },
+        })
+      }
+    >
+      <Text style={styles.playIcon}>▶</Text>
 
-        <Text style={styles.startButtonText}>
-          Comenzar Sesión
-        </Text>
-      </TouchableOpacity>
+      <Text style={styles.startButtonText}>
+        Comenzar Sesión
+      </Text>
+    </TouchableOpacity>
     </ScrollView>
   );
 }
@@ -346,5 +396,19 @@ const styles = StyleSheet.create({
     color: "#FFFFFF",
     fontSize: 16,
     fontWeight: "600",
+  },
+
+  dropdown: {
+  marginTop: 8,
+  borderWidth: 1,
+  borderColor: "#D1D5DB",
+  borderRadius: 10,
+  overflow: "hidden",
+  },
+
+  dropdownItem: {
+    padding: 12,
+    borderBottomWidth: 1,
+    borderBottomColor: "#E5E7EB",
   },
 });
