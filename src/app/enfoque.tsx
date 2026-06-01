@@ -1,135 +1,350 @@
-import { StyleSheet, Text, View } from "react-native";
+import { useState } from "react";
+import {
+  ScrollView,
+  StyleSheet,
+  Text,
+  TouchableOpacity,
+  View,
+} from "react-native";
 
 export default function EnfoqueScreen() {
+  const [selectedMode, setSelectedMode] = useState(2);
+
+  const modos = [
+    {
+      id: 1,
+      nombre: "Pomodoro",
+      descripcion: "25 min de enfoque + 5 min descanso",
+      tiempo: "25 min",
+      icono: "⏱️",
+      color: "#2E7D32",
+    },
+    {
+      id: 2,
+      nombre: "Enfoque Profundo",
+      descripcion: "50 min de trabajo concentrado",
+      tiempo: "50 min",
+      icono: "🧠",
+      color: "#00ACC1",
+    },
+    {
+      id: 3,
+      nombre: "Sesión Rápida",
+      descripcion: "10 min para tareas cortas",
+      tiempo: "10 min",
+      icono: "⚡",
+      color: "#FB8C00",
+    },
+  ];
+
   return (
-    <View style={styles.container}>
+    <ScrollView
+      style={styles.container}
+      contentContainerStyle={{ paddingBottom: 30 }}
+    >
       <Text style={styles.title}>Enfoque</Text>
 
-      <View style={styles.card}>
-        <Text style={styles.subtitle}>Modo de Enfoque</Text>
-
-        <View style={[styles.mode, styles.selected]}>
-          <Text style={styles.icon}>⏱</Text>
-
-          <View style={styles.info}>
-            <Text style={styles.modeTitle}>Pomodoro</Text>
-            <Text style={styles.modeDescription}>
-              25 min de enfoque + 5 min descanso
-            </Text>
-          </View>
-
-          <Text style={styles.badge}>25 min</Text>
-        </View>
-
-        <View style={styles.mode}>
-          <Text style={styles.icon}>🧠</Text>
-
-          <View style={styles.info}>
-            <Text style={styles.modeTitle}>Enfoque Profundo</Text>
-            <Text style={styles.modeDescription}>
-              50 min de trabajo concentrado
-            </Text>
-          </View>
-
-          <Text style={styles.badge}>50 min</Text>
-        </View>
-
-        <View style={styles.mode}>
-          <Text style={styles.icon}>⚡</Text>
-
-          <View style={styles.info}>
-            <Text style={styles.modeTitle}>Sesión Rápida</Text>
-            <Text style={styles.modeDescription}>
-              10 min para tareas cortas
-            </Text>
-          </View>
-
-          <Text style={styles.badge}>10 min</Text>
-        </View>
-      </View>
+      {/* MODOS DE ENFOQUE */}
 
       <View style={styles.card}>
-        <Text style={styles.subtitle}>Materia</Text>
+        <Text style={styles.cardTitle}>Modo de Enfoque</Text>
 
-        <View style={styles.select}>
-          <Text>Selecciona una materia</Text>
-        </View>
+        <Text style={styles.cardDescription}>
+          Elige el tipo de sesión que mejor se adapte a tu tarea
+        </Text>
+
+        {modos.map((item) => (
+          <TouchableOpacity
+            key={item.id}
+            style={[
+              styles.modeCard,
+              selectedMode === item.id && styles.selectedMode,
+            ]}
+            onPress={() => setSelectedMode(item.id)}
+          >
+            <View
+              style={[
+                styles.iconBox,
+                { backgroundColor: item.color },
+              ]}
+            >
+              <Text style={styles.iconText}>
+                {item.icono}
+              </Text>
+            </View>
+
+            <View style={styles.modeInfo}>
+              <View style={styles.modeHeader}>
+                <Text style={styles.modeTitle}>
+                  {item.nombre}
+                </Text>
+
+                <View style={styles.badge}>
+                  <Text style={styles.badgeText}>
+                    {item.tiempo}
+                  </Text>
+                </View>
+              </View>
+
+              <Text style={styles.modeDescription}>
+                {item.descripcion}
+              </Text>
+            </View>
+
+            {selectedMode === item.id && (
+              <Text style={styles.check}>
+                ✓
+              </Text>
+            )}
+          </TouchableOpacity>
+        ))}
       </View>
-    </View>
+
+      {/* MATERIA */}
+
+      <View style={styles.card}>
+        <Text style={styles.cardTitle}>Materia</Text>
+
+        <Text style={styles.cardDescription}>
+          ¿Qué vas a estudiar en esta sesión?
+        </Text>
+
+        <TouchableOpacity style={styles.select}>
+          <Text style={styles.selectText}>
+            Química
+          </Text>
+
+          <Text style={styles.arrow}>
+            ▼
+          </Text>
+        </TouchableOpacity>
+      </View>
+
+      {/* CARPI */}
+
+      <View style={styles.petCard}>
+        <View style={styles.petCircle}>
+          <Text style={styles.petIcon}>
+            🌱
+          </Text>
+        </View>
+
+        <Text style={styles.petName}>
+          Carpi
+        </Text>
+
+        <Text style={styles.petLevel}>
+          Por Nacer • Nivel 1
+        </Text>
+
+        <Text style={styles.petMessage}>
+          Carpi está listo para estudiar contigo
+        </Text>
+      </View>
+
+      {/* BOTÓN */}
+
+      <TouchableOpacity style={styles.startButton}>
+        <Text style={styles.playIcon}>
+          ▶
+        </Text>
+
+        <Text style={styles.startButtonText}>
+          Comenzar Sesión
+        </Text>
+      </TouchableOpacity>
+    </ScrollView>
   );
 }
 
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    padding: 20,
-    backgroundColor: "#f5f5f5",
+    backgroundColor: "#F4F7F5",
+    padding: 16,
   },
 
   title: {
     fontSize: 28,
-    fontWeight: "bold",
+    fontWeight: "700",
     marginBottom: 20,
+    color: "#111827",
   },
 
   card: {
-    backgroundColor: "#fff",
-    borderRadius: 12,
-    padding: 16,
-    marginBottom: 20,
+    backgroundColor: "#FFFFFF",
+    borderRadius: 16,
+    padding: 18,
+    marginBottom: 18,
+    borderWidth: 1,
+    borderColor: "#E5E7EB",
   },
 
-  subtitle: {
+  cardTitle: {
     fontSize: 18,
     fontWeight: "600",
-    marginBottom: 15,
+    color: "#111827",
   },
 
-  mode: {
-    flexDirection: "row",
-    alignItems: "center",
-    padding: 12,
-    borderWidth: 1,
-    borderColor: "#ddd",
-    borderRadius: 10,
-    marginBottom: 10,
-  },
-
-  selected: {
-    borderColor: "green",
-  },
-
-  icon: {
-    fontSize: 24,
-    marginRight: 12,
-  },
-
-  info: {
-    flex: 1,
-  },
-
-  modeTitle: {
-    fontWeight: "bold",
-    fontSize: 16,
-  },
-
-  modeDescription: {
-    color: "#666",
+  cardDescription: {
+    color: "#6B7280",
+    marginTop: 4,
+    marginBottom: 16,
     fontSize: 13,
   },
 
+  modeCard: {
+    flexDirection: "row",
+    alignItems: "center",
+    padding: 14,
+    borderWidth: 1,
+    borderColor: "#E5E7EB",
+    borderRadius: 14,
+    marginBottom: 12,
+    backgroundColor: "#FFFFFF",
+  },
+
+  selectedMode: {
+    backgroundColor: "#F0FDF4",
+    borderColor: "#22C55E",
+  },
+
+  iconBox: {
+    width: 50,
+    height: 50,
+    borderRadius: 12,
+    justifyContent: "center",
+    alignItems: "center",
+    marginRight: 14,
+  },
+
+  iconText: {
+    fontSize: 22,
+  },
+
+  modeInfo: {
+    flex: 1,
+  },
+
+  modeHeader: {
+    flexDirection: "row",
+    alignItems: "center",
+  },
+
+  modeTitle: {
+    fontSize: 16,
+    fontWeight: "600",
+    color: "#111827",
+  },
+
   badge: {
-    backgroundColor: "#eee",
-    paddingHorizontal: 10,
-    paddingVertical: 4,
+    marginLeft: 8,
+    backgroundColor: "#F5EFE6",
+    paddingHorizontal: 8,
+    paddingVertical: 3,
     borderRadius: 8,
-    fontSize: 12,
+  },
+
+  badgeText: {
+    fontSize: 11,
+    color: "#B45309",
+    fontWeight: "600",
+  },
+
+  modeDescription: {
+    color: "#6B7280",
+    marginTop: 4,
+    fontSize: 13,
+  },
+
+  check: {
+    fontSize: 24,
+    color: "#22C55E",
+    fontWeight: "bold",
   },
 
   select: {
+    flexDirection: "row",
+    justifyContent: "space-between",
+    alignItems: "center",
     borderWidth: 1,
-    borderColor: "#ddd",
+    borderColor: "#D1D5DB",
     borderRadius: 10,
-    padding: 12,
+    paddingHorizontal: 14,
+    paddingVertical: 12,
+    width: 150,
+  },
+
+  selectText: {
+    color: "#111827",
+    fontSize: 14,
+  },
+
+  arrow: {
+    color: "#777",
+    fontSize: 12,
+  },
+
+  petCard: {
+    backgroundColor: "#EEF7F2",
+    borderRadius: 18,
+    paddingVertical: 24,
+    alignItems: "center",
+    marginBottom: 18,
+    borderWidth: 1,
+    borderColor: "#D8E8DD",
+  },
+
+  petCircle: {
+    width: 80,
+    height: 80,
+    borderRadius: 40,
+    backgroundColor: "#D6B55A",
+    justifyContent: "center",
+    alignItems: "center",
+    marginBottom: 12,
+  },
+
+  petIcon: {
+    fontSize: 30,
+  },
+
+  petName: {
+    fontSize: 20,
+    fontWeight: "600",
+    color: "#111827",
+  },
+
+  petLevel: {
+    color: "#6B7280",
+    marginTop: 4,
+    fontSize: 13,
+  },
+
+  petMessage: {
+    marginTop: 12,
+    color: "#4B5563",
+    textAlign: "center",
+  },
+
+  startButton: {
+    backgroundColor: "#1F8F3A",
+    height: 56,
+    borderRadius: 12,
+    justifyContent: "center",
+    alignItems: "center",
+    flexDirection: "row",
+  },
+
+  playIcon: {
+    color: "#FFFFFF",
+    fontSize: 18,
+    marginRight: 8,
+  },
+
+  startButtonText: {
+    color: "#FFFFFF",
+    fontSize: 16,
+    fontWeight: "600",
   },
 });
