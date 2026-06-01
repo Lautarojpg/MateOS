@@ -1,5 +1,14 @@
-import EnfoqueScreen from "./enfoque";
+import { Stack } from "expo-router";
 
-export default function HomeScreen() {
-  return <EnfoqueScreen />;
+export default function Layout() {
+
+  return (
+
+    <Stack
+      screenOptions={{
+        headerShown: false,
+      }}
+    />
+
+  );
 }
