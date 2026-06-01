@@ -1,5 +1,6 @@
 import React, { useState, useEffect } from "react";
 import { View, StyleSheet, Text, TouchableOpacity, TextInput } from "react-native";
+import { router } from "expo-router";
 
 const STORAGE_KEY = "pdf_last_page_web_IMG06_ImageRestoration";
 
@@ -12,6 +13,7 @@ export default function PdfViewer() {
     : pdfAsset?.uri || pdfAsset?.default || "/assets/pdf/IMG06_ImageRestoration.pdf";
 
   const [currentPage, setCurrentPage] = useState<number>(1);
+  const [totalPages, setTotalPages] = useState<number>(0);
   const [pageInputValue, setPageInputValue] = useState<string>("1");
 
   // Load last saved page from localStorage on mount
@@ -30,9 +32,34 @@ export default function PdfViewer() {
     }
   }, []);
 
+  // Dynamically detect total pages by fetching PDF asset in browser
+  useEffect(() => {
+    const detectPages = async () => {
+      try {
+        const response = await fetch(pdfUrl);
+        const text = await response.text();
+        const matches = text.match(/\/Type\s*\/Page\b/g);
+        if (matches) {
+          setTotalPages(matches.length);
+        } else {
+          const countMatch = text.match(/\/Count\s+(\d+)/);
+          if (countMatch && countMatch[1]) {
+            setTotalPages(parseInt(countMatch[1], 10));
+          } else {
+            setTotalPages(18); // Safe fallback for this specific slides PDF
+          }
+        }
+      } catch (e) {
+        console.error("Failed to parse PDF page count on web", e);
+        setTotalPages(18); // Safe fallback
+      }
+    };
+    detectPages();
+  }, [pdfUrl]);
+
   // Save page to localStorage and update state
   const goToPage = (page: number) => {
-    if (page < 1) return;
+    if (page < 1 || (totalPages > 0 && page > totalPages)) return;
     setCurrentPage(page);
     setPageInputValue(page.toString());
     try {
@@ -49,7 +76,9 @@ export default function PdfViewer() {
   };
 
   const handleNext = () => {
-    goToPage(currentPage + 1);
+    if (totalPages === 0 || currentPage < totalPages) {
+      goToPage(currentPage + 1);
+    }
   };
 
   const handleInputChange = (text: string) => {
@@ -58,11 +87,22 @@ export default function PdfViewer() {
 
   const handleInputSubmit = () => {
     const pageNum = parseInt(pageInputValue, 10);
-    if (!isNaN(pageNum) && pageNum > 0) {
+    if (!isNaN(pageNum) && pageNum > 0 && (totalPages === 0 || pageNum <= totalPages)) {
       goToPage(pageNum);
     } else {
       setPageInputValue(currentPage.toString());
     }
+  };
+
+  const handleFinalize = () => {
+    try {
+      // Clear saved page in localStorage so next session starts from page 1
+      localStorage.removeItem(STORAGE_KEY);
+    } catch (e) {
+      console.error("Failed to clear page from localStorage on finalize", e);
+    }
+    // Redirect to home screen "/"
+    router.replace("/");
   };
 
   // We append standard PDF open parameters:
@@ -70,8 +110,10 @@ export default function PdfViewer() {
   // - toolbar=0 (hides standard print/download/nav controls)
   // - navpanes=0 (hides thumbnails/bookmarks pane)
   // - scrollbar=0 (hides standard view scrollbar)
-  // - view=FitH (fits horizontally for maximum readability)
-  const fullIframeUrl = `${pdfUrl}#page=${currentPage}&toolbar=0&navpanes=0&scrollbar=0&view=FitH`;
+  // - view=Fit (Fits the entire page—both width and height—inside the container cleanly)
+  const fullIframeUrl = `${pdfUrl}#page=${currentPage}&toolbar=0&navpanes=0&scrollbar=0&view=Fit`;
+
+  const isLastPage = totalPages > 0 && currentPage >= totalPages;
 
   return (
     <View style={styles.container}>
@@ -103,20 +145,35 @@ export default function PdfViewer() {
               onBlur={handleInputSubmit}
               keyboardType="number-pad"
             />
+            <Text style={styles.trackerTotal}>/ {totalPages || "..."}</Text>
           </View>
 
-          <TouchableOpacity style={styles.btn} onPress={handleNext}>
+          {/* Siguiente Button: disabled if we are on the last page */}
+          <TouchableOpacity 
+            style={[styles.btn, isLastPage && styles.btnDisabled]} 
+            onPress={handleNext}
+            disabled={isLastPage}
+          >
             <Text style={styles.btnText}>Siguiente ▶</Text>
           </TouchableOpacity>
+
+          {/* Finalizar Button: only shown once they reach the end of the document */}
+          {isLastPage && (
+            <TouchableOpacity style={styles.finalizeBtn} onPress={handleFinalize}>
+              <Text style={styles.finalizeBtnText}>Finalizar ✓</Text>
+            </TouchableOpacity>
+          )}
         </View>
 
         <View style={styles.statusIndicator}>
           <View style={styles.dot} />
-          <Text style={styles.statusText}>Leyendo ahora</Text>
+          <Text style={styles.statusText}>
+            {isLastPage ? "Lectura completada" : "Leyendo ahora"}
+          </Text>
         </View>
       </View>
 
-      {/* Embedded Iframe Container */}
+      {/* Embedded Iframe Container with Absolute Transparent Overlay */}
       <View style={styles.iframeContainer}>
         <iframe
           key={currentPage} // Forces iframe to reload to load the specific page parameter
@@ -129,6 +186,8 @@ export default function PdfViewer() {
           }}
           title="Visualizador de PDF"
         />
+        {/* Absolute transparent overlay blocking all mouse/touch scroll & click interactions within the iframe */}
+        <View style={styles.overlay} />
       </View>
     </View>
   );
@@ -173,9 +232,28 @@ const styles = StyleSheet.create({
     gap: 12,
   },
   btn: {
-    backgroundColor: "#10B981",
+    backgroundColor: "#2a2a2a",
+    borderWidth: 1,
+    borderColor: "#444",
     paddingVertical: 8,
     paddingHorizontal: 14,
+    borderRadius: 8,
+    alignItems: "center",
+    justifyContent: "center",
+  },
+  btnDisabled: {
+    borderColor: "#222",
+    opacity: 0.4,
+  },
+  btnText: {
+    color: "#fff",
+    fontSize: 13,
+    fontWeight: "600",
+  },
+  finalizeBtn: {
+    backgroundColor: "#10B981",
+    paddingVertical: 8,
+    paddingHorizontal: 16,
     borderRadius: 8,
     alignItems: "center",
     justifyContent: "center",
@@ -185,14 +263,10 @@ const styles = StyleSheet.create({
     shadowRadius: 3.84,
     elevation: 5,
   },
-  btnDisabled: {
-    backgroundColor: "#444",
-    opacity: 0.6,
-  },
-  btnText: {
+  finalizeBtnText: {
     color: "#fff",
     fontSize: 13,
-    fontWeight: "600",
+    fontWeight: "bold",
   },
   pageTracker: {
     flexDirection: "row",
@@ -208,6 +282,11 @@ const styles = StyleSheet.create({
     color: "#aaa",
     fontSize: 13,
     marginRight: 6,
+  },
+  trackerTotal: {
+    color: "#aaa",
+    fontSize: 13,
+    marginLeft: 6,
   },
   pageInput: {
     color: "#fff",
@@ -241,5 +320,15 @@ const styles = StyleSheet.create({
     flex: 1,
     width: "100%",
     height: "100%",
+    position: "relative", // Required to position the absolute overlay correctly
+  },
+  overlay: {
+    position: "absolute",
+    top: 0,
+    left: 0,
+    right: 0,
+    bottom: 0,
+    backgroundColor: "transparent",
+    zIndex: 10,
   },
 });
