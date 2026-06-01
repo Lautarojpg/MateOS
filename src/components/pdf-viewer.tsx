@@ -2,6 +2,7 @@ import React, { useState, useEffect } from "react";
 import { StyleSheet, View, Text, TouchableOpacity, ActivityIndicator, TextInput } from "react-native";
 import Pdf from "react-native-pdf";
 import AsyncStorage from "@react-native-async-storage/async-storage";
+import { router } from "expo-router";
 
 const STORAGE_KEY = "pdf_last_page_native_IMG06_ImageRestoration";
 
@@ -44,7 +45,6 @@ export default function PdfViewer() {
   const goToPage = async (page: number) => {
     if (page < 1 || (totalPages > 0 && page > totalPages)) return;
     
-    // Set initialPage to null momentarily to force the Pdf component to re-render at the new page
     setInitialPage(page);
     setCurrentPage(page);
     setPageInputValue(page.toString());
@@ -65,6 +65,17 @@ export default function PdfViewer() {
     if (totalPages === 0 || currentPage < totalPages) {
       goToPage(currentPage + 1);
     }
+  };
+
+  const handleFinalize = async () => {
+    try {
+      // Clear saved page in AsyncStorage so next session starts from page 1
+      await AsyncStorage.removeItem(STORAGE_KEY);
+    } catch (e) {
+      console.error("Failed to clear page on finalize", e);
+    }
+    // Redirect to home screen "/"
+    router.replace("/");
   };
 
   const handleInputChange = (text: string) => {
@@ -88,6 +99,8 @@ export default function PdfViewer() {
       </View>
     );
   }
+
+  const isLastPage = totalPages > 0 && currentPage >= totalPages;
 
   return (
     <View style={styles.container}>
@@ -121,35 +134,44 @@ export default function PdfViewer() {
             <Text style={styles.trackerLabel}>/ {totalPages || "..."}</Text>
           </View>
 
+          {/* Siguiente Button: disabled on the last page */}
           <TouchableOpacity 
-            style={[styles.btn, totalPages > 0 && currentPage >= totalPages && styles.btnDisabled]} 
+            style={[styles.btn, isLastPage && styles.btnDisabled]} 
             onPress={handleNext}
-            disabled={totalPages > 0 && currentPage >= totalPages}
+            disabled={isLastPage}
           >
             <Text style={styles.btnText}>▶</Text>
           </TouchableOpacity>
+
+          {/* Finalizar Button: only shown once they reach the end of the document */}
+          {isLastPage && (
+            <TouchableOpacity style={styles.finalizeBtn} onPress={handleFinalize}>
+              <Text style={styles.finalizeBtnText}>Finalizar ✓</Text>
+            </TouchableOpacity>
+          )}
         </View>
 
         <View style={styles.statusIndicator}>
           <View style={styles.dot} />
-          <Text style={styles.statusText}>Leyendo</Text>
+          <Text style={styles.statusText}>
+            {isLastPage ? "Completado" : "Leyendo"}
+          </Text>
         </View>
       </View>
 
       {/* PDF Engine (Single Page Mode) */}
       <View style={styles.pdfContainer}>
         <Pdf
-          key={initialPage} // Force full re-render on page jump
+          key={initialPage}
           source={source}
           page={initialPage}
-          singlePage={true} // Forces single-page view without native multi-page scrolling
+          singlePage={true}
           style={styles.pdf}
           trustAllCerts={false}
           onLoadComplete={(numberOfPages) => {
             setTotalPages(numberOfPages);
           }}
           onPageChanged={(page) => {
-            // Backup tracker
             if (page !== currentPage) {
               setCurrentPage(page);
               setPageInputValue(page.toString());
@@ -200,7 +222,7 @@ const styles = StyleSheet.create({
   docInfo: {
     flexDirection: "row",
     alignItems: "center",
-    maxWidth: 100,
+    maxWidth: 90,
   },
   icon: {
     fontSize: 14,
@@ -208,7 +230,7 @@ const styles = StyleSheet.create({
   },
   docTitle: {
     color: "#fff",
-    fontSize: 11,
+    fontSize: 10,
     fontWeight: "600",
   },
   navigation: {
@@ -217,7 +239,9 @@ const styles = StyleSheet.create({
     gap: 8,
   },
   btn: {
-    backgroundColor: "#10B981",
+    backgroundColor: "#2a2a2a",
+    borderWidth: 1,
+    borderColor: "#444",
     paddingVertical: 6,
     paddingHorizontal: 10,
     borderRadius: 6,
@@ -225,10 +249,28 @@ const styles = StyleSheet.create({
     justifyContent: "center",
   },
   btnDisabled: {
-    backgroundColor: "#444",
-    opacity: 0.6,
+    borderColor: "#222",
+    opacity: 0.4,
   },
   btnText: {
+    color: "#fff",
+    fontSize: 12,
+    fontWeight: "bold",
+  },
+  finalizeBtn: {
+    backgroundColor: "#10B981",
+    paddingVertical: 6,
+    paddingHorizontal: 10,
+    borderRadius: 6,
+    alignItems: "center",
+    justifyContent: "center",
+    shadowColor: "#000",
+    shadowOffset: { width: 0, height: 1 },
+    shadowOpacity: 0.2,
+    shadowRadius: 1.41,
+    elevation: 2,
+  },
+  finalizeBtnText: {
     color: "#fff",
     fontSize: 12,
     fontWeight: "bold",
