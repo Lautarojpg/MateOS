@@ -7,7 +7,6 @@ export default function MenuCuestionarioScreen() {
 
   return (
     <View style={styles.container}>
-      <Header />
       
       <View style={styles.content}>
         <Text style={styles.titulo}>Zona de Repaso</Text>
