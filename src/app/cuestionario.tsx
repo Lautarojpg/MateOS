@@ -128,7 +128,6 @@ export default function CuestionarioScreen() {
 
     return (
       <View style={styles.container}>
-        <Header />
         
         {/* Cambiamos el View por un ScrollView para poder deslizar hacia abajo */}
         <ScrollView contentContainerStyle={styles.scrollContent}>
