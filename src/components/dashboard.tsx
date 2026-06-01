@@ -1,5 +1,4 @@
-import React from "react";
-import { View, Text, StyleSheet, ScrollView, TouchableOpacity, Image } from "react-native";
+import { Image, ScrollView, StyleSheet, Text, TouchableOpacity, View } from "react-native";
 
 export default function HomeScreen() {
   return (
@@ -24,15 +23,15 @@ export default function HomeScreen() {
 
         {/* SIDEBAR IZQUIERDO (Limpio, sin bordes toscos de botones) */}
         <View style={styles.sidebar}>
-          
+
           {/* Info del Compañero (Carpi) */}
           <View style={styles.profileSection}>
             <View style={styles.avatarPlaceholder}>
               {/* RUTA DE TU SPRITE: Cambiá este require por la ruta local de tu PNG exportado */}
-              <Image 
+              <Image
                 source={require('../../assets/sprite/carpincho.gif')}
                 style={styles.spriteImage}
-                resizeMode="contain" 
+                resizeMode="contain"
               />
             </View>
             <Text style={styles.username}>Carpi</Text>
@@ -57,7 +56,7 @@ export default function HomeScreen() {
             </TouchableOpacity>
 
             <TouchableOpacity style={styles.menuItem}>
-              <Text style={styles.menuText}>📖 Lector</Text>
+              <Text style={styles.menuText}>📖 Apuntes</Text>
             </TouchableOpacity>
           </View>
 
@@ -70,7 +69,7 @@ export default function HomeScreen() {
 
         {/* PANEL PRINCIPAL DERECHO */}
         <ScrollView style={styles.mainPanel} contentContainerStyle={styles.mainPanelContent}>
-          
+
           {/* Fila de 4 Tarjetas de Métricas Superiores (Con bordes negros marcados) */}
           <View style={styles.metricsRow}>
             <View style={[styles.metricCard, { backgroundColor: '#E8F5E9' }]}>
@@ -163,23 +162,23 @@ const styles = StyleSheet.create({
     justifyContent: 'center',
     alignItems: 'center',
   },
-  badgeTextBrown: { 
-    color: '#5D4037', 
-    fontWeight: '700' 
+  badgeTextBrown: {
+    color: '#5D4037',
+    fontWeight: '700'
   },
-  badgeTextOrange: { 
-    color: '#E65100', 
-    fontWeight: '700' 
+  badgeTextOrange: {
+    color: '#E65100',
+    fontWeight: '700'
   },
-  badgeTextGreen: { 
-    color: '#2E7D32', 
-    fontWeight: '700' 
+  badgeTextGreen: {
+    color: '#2E7D32',
+    fontWeight: '700'
   },
   contentBody: {
     flex: 1,
     flexDirection: "row",
   },
-  
+
   // SIDEBAR STYLES (Sin bordes en botones individuales)
   sidebar: {
     width: 260,
