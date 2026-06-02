@@ -8,14 +8,12 @@ import {
   StyleSheet,
   Text,
   TextInput,
-  TouchableOpacity,
-  View,
+  TouchableOpacity, useWindowDimensions, View
 } from "react-native";
 import BibliotecaScreen from "../app/apuntes";
 import EnfoqueScreen from "../app/enfoque";
 import MenuCuestionarioScreen from "../app/menuCuestionario";
 import TiendaScreen from "../app/tienda";
-import PdfViewer from "./pdf-viewer";
 
 // ── Tipos ──────────────────────────────────────────────────────────────────────
 const MENU_ITEMS = [
@@ -207,9 +205,15 @@ type CalendarioProps = {
   eventos: EventosMap;
   diaSeleccionado: number;
   onSelectDay: (dia: number) => void;
+  isMobile?: boolean;
 };
 
-function CalendarioJunio({ eventos, diaSeleccionado, onSelectDay }: CalendarioProps) {
+function CalendarioJunio({
+  eventos,
+  diaSeleccionado,
+  onSelectDay,
+  isMobile = false,
+}: CalendarioProps) {
   const celdas: (number | null)[] = [
     ...Array(JUNIO_INICIO).fill(null),
     ...Array.from({ length: DIAS_JUNIO }, (_, i) => i + 1),
@@ -243,6 +247,7 @@ function CalendarioJunio({ eventos, diaSeleccionado, onSelectDay }: CalendarioPr
                 key={di}
                 style={[
                   styles.calendarDay,
+                  isMobile && styles.calendarDayMobile,
                   esSeleccionado && styles.calendarDaySelected,
                   esHoy && !esSeleccionado && styles.calendarDayToday,
                 ]}
@@ -342,6 +347,8 @@ function ListaEventosDia({ eventos, diaSeleccionado, onDelete, onAdd }: ListaPro
 // Componente principal
 // ══════════════════════════════════════════════════════════════════════════════
 export default function HomeScreen() {
+  const { width } = useWindowDimensions();
+  const isMobile = width < 768;
   const [currentScreen, setCurrentScreen] = useState<Screen>("inicio");
   const [diaSeleccionado, setDiaSeleccionado] = useState<number>(1);
   const [eventos, setEventos] = useState<EventosMap>(EVENTOS_INICIALES);
@@ -371,7 +378,6 @@ export default function HomeScreen() {
   const renderMainContent = () => {
     switch (currentScreen) {
       case "enfoque": return <EnfoqueScreen />;
-      case "lector": return <PdfViewer />;
       case "apuntes": return <BibliotecaScreen />;
       case "cuestionario": return <MenuCuestionarioScreen />;
       case "tienda": return <TiendaScreen />;
@@ -379,7 +385,12 @@ export default function HomeScreen() {
         return (
           <ScrollView style={{ flex: 1 }} contentContainerStyle={styles.mainPanelContent}>
             {/* Métricas */}
-            <View style={styles.metricsRow}>
+            <View
+              style={[
+                styles.metricsRow,
+                isMobile && styles.metricsRowMobile,
+              ]}
+            >
               {[
                 { icon: "⏱️", val: "0", lbl: "min hoy", bg: "#E8F5E9" },
                 { icon: "🎯", val: "0%", lbl: "enfoque", bg: "#EFEBE9" },
@@ -397,7 +408,12 @@ export default function HomeScreen() {
             </View>
 
             {/* Calendario + lista de eventos */}
-            <View style={styles.calendarSection}>
+            <View
+              style={[
+                styles.calendarSection,
+                isMobile && styles.calendarSectionMobile,
+              ]}
+            >
               <ListaEventosDia
                 eventos={eventos}
                 diaSeleccionado={diaSeleccionado}
@@ -408,6 +424,7 @@ export default function HomeScreen() {
                 eventos={eventos}
                 diaSeleccionado={diaSeleccionado}
                 onSelectDay={setDiaSeleccionado}
+                isMobile={isMobile}
               />
             </View>
           </ScrollView>
@@ -439,9 +456,19 @@ export default function HomeScreen() {
       </View>
 
       {/* BODY */}
-      <View style={styles.contentBody}>
+      <View
+        style={[
+          styles.contentBody,
+          isMobile && styles.contentBodyMobile,
+        ]}
+      >
         {/* SIDEBAR */}
-        <View style={styles.sidebar}>
+          <View
+            style={[
+              styles.sidebar,
+              isMobile && styles.sidebarMobile,
+            ]}
+          >
           <View style={styles.profileSection}>
             <View style={styles.avatarPlaceholder}>
               <Image
@@ -478,9 +505,16 @@ export default function HomeScreen() {
         </View>
 
         {/* PANEL DINÁMICO */}
-        <View style={styles.mainPanel}>{renderMainContent()}</View>
+      <View
+        style={[
+          styles.mainPanel,
+          isMobile && styles.mainPanelMobile,
+        ]}
+      >
+        {renderMainContent()}
       </View>
     </View>
+  </View>
   );
 }
 
@@ -507,7 +541,15 @@ const styles = StyleSheet.create({
   mainPanelContent: { padding: 20 },
 
   // Sidebar
-  sidebar: { width: 260, backgroundColor: "#FFFFFF", borderRightWidth: 2, borderRightColor: "#000000", paddingTop: 20, justifyContent: "space-between" },
+  sidebar: {
+  width: 260,
+  maxWidth: "100%",
+  backgroundColor: "#FFFFFF",
+  borderRightWidth: 2,
+  borderRightColor: "#000000",
+  paddingTop: 20,
+  justifyContent: "space-between",
+},
   profileSection: { alignItems: "center", paddingHorizontal: 20, marginBottom: 15 },
   avatarPlaceholder: { width: 85, height: 85, borderRadius: 12, backgroundColor: "#EFEBE9", justifyContent: "center", alignItems: "center", marginBottom: 10, overflow: "hidden" },
   spriteImage: { width: "100%", height: "100%" },
@@ -525,8 +567,13 @@ const styles = StyleSheet.create({
   footerSubtext: { fontSize: 11, color: "#795548" },
 
   // Métricas
-  metricsRow: { flexDirection: "row", justifyContent: "space-between", gap: 12, marginBottom: 20 },
-  metricCard: { flex: 1, flexDirection: "row", alignItems: "center", padding: 14, borderRadius: 12, gap: 10, borderWidth: 2, borderColor: "#000000" },
+  metricsRow: {
+  flexDirection: "row",
+  flexWrap: "wrap",
+  gap: 12,
+  marginBottom: 20,
+},
+  metricCard: { flexBasis: "48%", flexDirection: "row", alignItems: "center", padding: 14, borderRadius: 12, gap: 10, borderWidth: 2, borderColor: "#000000" },
   metricIcon: { fontSize: 20 },
   metricValue: { fontSize: 20, fontWeight: "700", color: "#000000" },
   metricLabel: { fontSize: 11, color: "#2E1C0C", fontWeight: "600" },
@@ -598,4 +645,33 @@ const styles = StyleSheet.create({
   modalSaveBtn: { flex: 2, paddingVertical: 13, borderRadius: 10, backgroundColor: "#2E7D32", alignItems: "center" },
   modalSaveBtnDisabled: { backgroundColor: "#BDBDBD" },
   modalSaveBtnText: { fontSize: 15, fontWeight: "700", color: "#FFF" },
+
+contentBodyMobile: {
+  flexDirection: "column",
+},
+
+sidebarMobile: {
+  width: "100%",
+  borderRightWidth: 0,
+  borderBottomWidth: 2,
+  borderBottomColor: "#000",
+  paddingBottom: 15,
+},
+
+mainPanelMobile: {
+  width: "100%",
+},
+
+metricsRowMobile: {
+  flexWrap: "wrap",
+},
+
+calendarSectionMobile: {
+  flexDirection: "column",
+},
+
+calendarDayMobile: {
+  height: 45,
+},
+
 }); 
