@@ -499,7 +499,7 @@ export default function HomeScreen() {
                 />
               </View>
               <Text style={styles.username}>Carpi</Text>
-              <Text style={styles.subtext}>Por Nacer - Nivel 1</Text>
+              <Text style={styles.subtext}> Nivel 3</Text>
               <Text style={styles.statsMini}>⚡ 100%  🧉 0 XP</Text>
             </View>
 

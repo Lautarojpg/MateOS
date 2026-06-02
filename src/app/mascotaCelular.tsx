@@ -133,7 +133,7 @@ mascotArea: {
 },
 
 spriteImage: {
-  width: 150,
-  height: 150,
+  width: 180,
+  height: 180,
 },
 });
