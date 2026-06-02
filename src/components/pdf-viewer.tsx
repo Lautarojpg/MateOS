@@ -1,8 +1,16 @@
 import React, { useState, useEffect } from "react";
-import { StyleSheet, View, Text, TouchableOpacity, ActivityIndicator, TextInput } from "react-native";
-import Pdf from "react-native-pdf";
+import { StyleSheet, View, Text, TouchableOpacity, ActivityIndicator, TextInput, Platform } from "react-native";
 import AsyncStorage from "@react-native-async-storage/async-storage";
 import { router } from "expo-router";
+
+// Dynamically load react-native-pdf to avoid crashing in Expo Go
+let Pdf: any = null;
+let expoGoWarning = false;
+try {
+  Pdf = require("react-native-pdf").default;
+} catch (e) {
+  expoGoWarning = true;
+}
 
 const STORAGE_KEY = "pdf_last_page_native_IMG06_ImageRestoration";
 
@@ -98,6 +106,46 @@ export default function PdfViewer({ onFinalize }: Props) {
       setPageInputValue(currentPage.toString());
     }
   };
+
+  if (expoGoWarning || !Pdf) {
+    return (
+      <View style={styles.container}>
+        <View style={styles.controlsBar}>
+          <View style={styles.docInfo}>
+            <Text style={styles.icon}>📄</Text>
+            <Text style={styles.docTitle} numberOfLines={1}>
+              IMG06_ImageRestoration.pdf
+            </Text>
+          </View>
+          <TouchableOpacity style={styles.finalizeBtn} onPress={handleFinalize}>
+            <Text style={styles.finalizeBtnText}>Cerrar ×</Text>
+          </TouchableOpacity>
+        </View>
+
+        <View style={styles.fallbackContainer}>
+          <Text style={styles.fallbackIcon}>⚠️</Text>
+          <Text style={styles.fallbackTitle}>Entorno Expo Go Detectado</Text>
+          <Text style={styles.fallbackText}>
+            El visor de PDF nativo utiliza librerías de sistema (`react-native-pdf`) que no están integradas en la app genérica de Expo Go.
+          </Text>
+          
+          <View style={styles.instructionCard}>
+            <Text style={styles.instructionTitle}>¿Cómo probar el visor?</Text>
+            <Text style={styles.instructionItem}>
+              1️⃣ <Text style={styles.boldText}>Compilación de desarrollo:</Text> Ejecutá <Text style={styles.codeText}>npx expo run:android</Text> para compilar e instalar la app nativa en tu celu/emulador.
+            </Text>
+            <Text style={styles.instructionItem}>
+              2️⃣ <Text style={styles.boldText}>Versión Web:</Text> Abrí la app en el navegador (<Text style={styles.codeText}>npm run web</Text>). El visor web está optimizado y funciona al 100%.
+            </Text>
+          </View>
+
+          <TouchableOpacity style={styles.btnSecondary} onPress={handleFinalize}>
+            <Text style={styles.btnSecondaryText}>Volver al Dashboard</Text>
+          </TouchableOpacity>
+        </View>
+      </View>
+    );
+  }
 
   if (initialPage === null) {
     return (
@@ -335,5 +383,76 @@ const styles = StyleSheet.create({
     width: "100%",
     height: "100%",
     backgroundColor: "#121212",
+  },
+  fallbackContainer: {
+    flex: 1,
+    justifyContent: "center",
+    alignItems: "center",
+    padding: 24,
+    backgroundColor: "#121212",
+  },
+  fallbackIcon: {
+    fontSize: 48,
+    marginBottom: 16,
+  },
+  fallbackTitle: {
+    color: "#fff",
+    fontSize: 20,
+    fontWeight: "bold",
+    marginBottom: 8,
+    textAlign: "center",
+  },
+  fallbackText: {
+    color: "#aaa",
+    fontSize: 14,
+    textAlign: "center",
+    lineHeight: 20,
+    marginBottom: 24,
+  },
+  instructionCard: {
+    backgroundColor: "#1e1e1e",
+    borderRadius: 8,
+    padding: 16,
+    borderWidth: 1,
+    borderColor: "#333",
+    width: "100%",
+    maxWidth: 400,
+    marginBottom: 24,
+    gap: 12,
+  },
+  instructionTitle: {
+    color: "#10B981",
+    fontSize: 15,
+    fontWeight: "bold",
+    marginBottom: 4,
+  },
+  instructionItem: {
+    color: "#ccc",
+    fontSize: 13,
+    lineHeight: 18,
+  },
+  boldText: {
+    fontWeight: "bold",
+    color: "#fff",
+  },
+  codeText: {
+    fontFamily: Platform.OS === "ios" ? "Courier" : "monospace",
+    backgroundColor: "#2e2e2e",
+    color: "#e0e0e0",
+    paddingHorizontal: 4,
+    borderRadius: 3,
+  },
+  btnSecondary: {
+    backgroundColor: "#2a2a2a",
+    borderWidth: 1,
+    borderColor: "#444",
+    paddingVertical: 12,
+    paddingHorizontal: 20,
+    borderRadius: 8,
+  },
+  btnSecondaryText: {
+    color: "#fff",
+    fontSize: 14,
+    fontWeight: "bold",
   },
 });

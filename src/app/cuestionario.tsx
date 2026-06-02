@@ -94,7 +94,11 @@ const preguntas = [
   }
 ];
 
-export default function CuestionarioScreen() {
+type Props = {
+  onFinalize?: () => void;
+};
+
+export default function CuestionarioScreen({ onFinalize }: Props) {
   const [preguntaActual, setPreguntaActual] = useState(0); 
   const [opcionSeleccionada, setOpcionSeleccionada] = useState<number | null>(null);
   const [puntaje, setPuntaje] = useState(0); 
@@ -193,6 +197,15 @@ export default function CuestionarioScreen() {
               <Text style={styles.textoSiguiente}>Volver a intentar</Text>
             </TouchableOpacity>
 
+            {onFinalize && (
+              <TouchableOpacity 
+                style={[styles.botonSiguienteActivo, { backgroundColor: '#555', marginTop: 10 }]}
+                onPress={onFinalize}
+              >
+                <Text style={styles.textoSiguiente}>Volver al Menú</Text>
+              </TouchableOpacity>
+            )}
+
           </View>
         </ScrollView>
       </View>
@@ -204,7 +217,14 @@ export default function CuestionarioScreen() {
   return (
     <View style={styles.container}>
       <View style={styles.content}>
-        
+        {onFinalize && (
+          <TouchableOpacity 
+            style={{ alignSelf: 'flex-start', backgroundColor: '#E8F5E9', paddingVertical: 6, paddingHorizontal: 12, borderRadius: 20, marginBottom: 12, borderWidth: 1, borderColor: '#C8E6C9' }} 
+            onPress={onFinalize}
+          >
+            <Text style={{ fontSize: 13, fontWeight: '700', color: '#2E7D32' }}>◀ Salir del Repaso</Text>
+          </TouchableOpacity>
+        )}
         <Text style={styles.progreso}>
           Pregunta {preguntaActual + 1} de {preguntas.length}
         </Text>

@@ -15,7 +15,10 @@ import EnfoqueScreen from "../app/enfoque";
 import MenuCuestionarioScreen from "../app/menuCuestionario";
 import TiendaScreen from "../app/tienda";
 import PdfViewer from "../app/lector";
-
+import TemporizadorScreen from "../app/temporizador";
+import CrearCuestionarioScreen from "../app/crearCuestionario";
+import CuestionarioPlayScreen from "../app/cuestionario";
+import MascotaCelular from "../app/mascotaCelular";
 // ── Tipos ──────────────────────────────────────────────────────────────────────
 const MENU_ITEMS = [
   { screen: "inicio", icon: "🏠", label: "Inicio" },
@@ -25,7 +28,7 @@ const MENU_ITEMS = [
   { screen: "tienda", icon: "🛒", label: "Tienda" },
 ] as const;
 
-type Screen = typeof MENU_ITEMS[number]["screen"] | "lector";
+type Screen = typeof MENU_ITEMS[number]["screen"] | "lector" | "mascota" | "temporizador" | "crearCuestionario" | "cuestionarioPlay";
 type TipoEvento = "parcial" | "entrega" | "coloquio" | "clase" | "reunion";
 
 type Evento = {
@@ -223,7 +226,7 @@ function CalendarioJunio({
   for (let i = 0; i < celdas.length; i += 7) semanas.push(celdas.slice(i, i + 7));
 
   return (
-    <View style={styles.calendarCard}>
+    <View style={[styles.calendarCard, isMobile && styles.calendarCardMobile]}>
       <View style={styles.calendarHeader}>
         <Text style={styles.calendarMonthTitle}> Junio 2026</Text>
       </View>
@@ -278,13 +281,14 @@ type ListaProps = {
   diaSeleccionado: number;
   onDelete: (dia: number, id: number) => void;
   onAdd: () => void;
+  isMobile?: boolean;
 };
 
-function ListaEventosDia({ eventos, diaSeleccionado, onDelete, onAdd }: ListaProps) {
+function ListaEventosDia({ eventos, diaSeleccionado, onDelete, onAdd, isMobile = false }: ListaProps) {
   const eventosDelDia = eventos[diaSeleccionado] ?? [];
 
   return (
-    <View style={styles.eventosCard}>
+    <View style={[styles.eventosCard, isMobile && styles.eventosCardMobile]}>
       {/* Encabezado */}
       <View style={styles.eventosDayHeader}>
         <Text style={styles.eventosDayNumber}>{diaSeleccionado}</Text>
@@ -350,11 +354,15 @@ export default function HomeScreen() {
   const { width } = useWindowDimensions();
   const isMobile = width < 768;
   const [currentScreen, setCurrentScreen] = useState<Screen>("inicio");
+  const [screenParams, setScreenParams] = useState<any>(null);
   const [diaSeleccionado, setDiaSeleccionado] = useState<number>(new Date().getDate());
   const [eventos, setEventos] = useState<EventosMap>(EVENTOS_INICIALES);
   const [modalVisible, setModalVisible] = useState(false);
 
-  const navigateTo = (screen: Screen) => setCurrentScreen(screen);
+  const navigateTo = (screen: Screen, params?: any) => {
+    setCurrentScreen(screen);
+    setScreenParams(params);
+  };
 
   const handleAgregarEvento = (ev: Omit<Evento, "id">) => {
     const nuevo: Evento = { id: nextId++, ...ev };
@@ -377,11 +385,26 @@ export default function HomeScreen() {
 
   const renderMainContent = () => {
     switch (currentScreen) {
-      case "enfoque": return <EnfoqueScreen />;
-      case "lector": return <PdfViewer onFinalize={() => navigateTo("inicio")} />;
+      case "enfoque": return <EnfoqueScreen onNavigate={(s, p) => navigateTo(s as Screen, p)} />;
+      case "temporizador":
+        return (
+          <TemporizadorScreen
+            minutos={screenParams?.minutos}
+            modo={screenParams?.modo}
+            materia={screenParams?.materia}
+            onFinalize={() => navigateTo("enfoque")}
+          />
+        );
+      case "lector": return <PdfViewer onFinalize={() => navigateTo("apuntes")} />;
       case "apuntes": return <BibliotecaScreen onNavigate={(s) => navigateTo(s as Screen)} />;
-      case "cuestionario": return <MenuCuestionarioScreen />;
+      case "cuestionario": return <MenuCuestionarioScreen onNavigate={(s) => navigateTo(s as Screen)} />;
+      case "crearCuestionario":
+        return <CrearCuestionarioScreen onFinalize={() => navigateTo("cuestionario")} />;
+      case "cuestionarioPlay":
+        return <CuestionarioPlayScreen onFinalize={() => navigateTo("cuestionario")} />;
       case "tienda": return <TiendaScreen />;
+      case "mascota":
+        return <MascotaCelular onFinalize={() => navigateTo("inicio")} />;
       default:
         return (
           <ScrollView style={{ flex: 1 }} contentContainerStyle={styles.mainPanelContent}>
@@ -420,6 +443,7 @@ export default function HomeScreen() {
                 diaSeleccionado={diaSeleccionado}
                 onDelete={handleBorrarEvento}
                 onAdd={() => setModalVisible(true)}
+                isMobile={isMobile}
               />
               <CalendarioJunio
                 eventos={eventos}
@@ -463,59 +487,87 @@ export default function HomeScreen() {
           isMobile && styles.contentBodyMobile,
         ]}
       >
-        {/* SIDEBAR */}
-          <View
-            style={[
-              styles.sidebar,
-              isMobile && styles.sidebarMobile,
-            ]}
-          >
-          <View style={styles.profileSection}>
-            <View style={styles.avatarPlaceholder}>
-              <Image
-                source={require("../../assets/sprite/carpincho.gif")}
-                style={styles.spriteImage}
-                resizeMode="contain"
-              />
+        {/* SIDEBAR (Desktop only) */}
+        {!isMobile && (
+          <View style={styles.sidebar}>
+            <View style={styles.profileSection}>
+              <View style={styles.avatarPlaceholder}>
+                <Image
+                  source={require("../../assets/sprite/carpincho.gif")}
+                  style={styles.spriteImage}
+                  resizeMode="contain"
+                />
+              </View>
+              <Text style={styles.username}>Carpi</Text>
+              <Text style={styles.subtext}>Por Nacer - Nivel 1</Text>
+              <Text style={styles.statsMini}>⚡ 100%  🧉 0 XP</Text>
             </View>
-            <Text style={styles.username}>Carpi</Text>
-            <Text style={styles.subtext}>Por Nacer - Nivel 1</Text>
-            <Text style={styles.statsMini}>⚡ 100%  🧉 0 XP</Text>
-          </View>
 
-          <View style={styles.divider} />
+            <View style={styles.divider} />
 
-          <View style={styles.menuContainer}>
-            {MENU_ITEMS.map(({ screen, icon, label }) => (
-              <TouchableOpacity
-                key={screen}
-                style={[styles.menuItem, currentScreen === screen && styles.menuItemActive]}
-                onPress={() => navigateTo(screen)}
-              >
-                <Text style={[styles.menuText, currentScreen === screen && styles.menuTextActive]}>
-                  {icon} {label}
-                </Text>
-              </TouchableOpacity>
-            ))}
-          </View>
+            <View style={styles.menuContainer}>
+              {MENU_ITEMS.map(({ screen, icon, label }) => (
+                <TouchableOpacity
+                  key={screen}
+                  style={[styles.menuItem, currentScreen === screen && styles.menuItemActive]}
+                  onPress={() => navigateTo(screen)}
+                >
+                  <Text style={[styles.menuText, currentScreen === screen && styles.menuTextActive]}>
+                    {icon} {label}
+                  </Text>
+                </TouchableOpacity>
+              ))}
+            </View>
 
-          <View style={styles.sidebarFooter}>
-            <Text style={styles.footerLogo}>MateOS</Text>
-            <Text style={styles.footerSubtext}>Tu compañero de estudio</Text>
+            <View style={styles.sidebarFooter}>
+              <Text style={styles.footerLogo}>MateOS</Text>
+              <Text style={styles.footerSubtext}>Tu compañero de estudio</Text>
+            </View>
           </View>
-        </View>
+        )}
 
         {/* PANEL DINÁMICO */}
-      <View
-        style={[
-          styles.mainPanel,
-          isMobile && styles.mainPanelMobile,
-        ]}
-      >
-        {renderMainContent()}
+        <View
+          style={[
+            styles.mainPanel,
+            isMobile && styles.mainPanelMobile,
+          ]}
+        >
+          {renderMainContent()}
+        </View>
       </View>
+
+      {/* BOTTOM NAVBAR (Mobile only) */}
+      {isMobile && (
+        <View style={styles.bottomNavbar}>
+          {MENU_ITEMS.map(({ screen, icon, label }) => {
+            const isTabActive = currentScreen === screen;
+            return (
+              <TouchableOpacity
+                key={screen}
+                style={[styles.navbarItem, isTabActive && styles.navbarItemActive]}
+                onPress={() => navigateTo(screen)}
+              >
+                <Text style={[styles.navbarIcon, isTabActive && styles.navbarIconActive]}>{icon}</Text>
+                <Text style={[styles.navbarLabel, isTabActive && styles.navbarLabelActive]}>
+                  {label}
+                </Text>
+              </TouchableOpacity>
+            );
+          })}
+          {/* Mascot Tab */}
+          <TouchableOpacity
+            style={[styles.navbarItem, currentScreen === "mascota" && styles.navbarItemActive]}
+            onPress={() => navigateTo("mascota")}
+          >
+            <Text style={[styles.navbarIcon, currentScreen === "mascota" && styles.navbarIconActive]}>🐹</Text>
+            <Text style={[styles.navbarLabel, currentScreen === "mascota" && styles.navbarLabelActive]}>
+              Mascota
+            </Text>
+          </TouchableOpacity>
+        </View>
+      )}
     </View>
-  </View>
   );
 }
 
@@ -674,5 +726,141 @@ calendarSectionMobile: {
 calendarDayMobile: {
   height: 45,
 },
+
+  // Bottom Navbar
+  bottomNavbar: {
+    height: 115,
+    backgroundColor: "#FFFFFF",
+    borderTopWidth: 2,
+    borderTopColor: "#000000",
+    flexDirection: "row",
+    justifyContent: "space-around",
+    alignItems: "center",
+    paddingBottom: Platform.OS === "ios" ? 30 : 28,
+  },
+  calendarCardMobile: {
+    width: "100%",
+    padding: 8,
+  },
+  eventosCardMobile: {
+    width: "100%",
+  },
+  navbarItem: {
+    flex: 1,
+    alignItems: "center",
+    justifyContent: "center",
+    paddingVertical: 6,
+  },
+  navbarItemActive: {
+    borderTopWidth: 3,
+    borderTopColor: "#2E7D32",
+    marginTop: -3,
+  },
+  navbarIcon: {
+    fontSize: 18,
+    color: "#666",
+  },
+  navbarIconActive: {
+    color: "#2E7D32",
+  },
+  navbarLabel: {
+    fontSize: 9,
+    color: "#666",
+    fontWeight: "600",
+    marginTop: 2,
+  },
+  navbarLabelActive: {
+    color: "#2E7D32",
+    fontWeight: "700",
+  },
+
+  // Mascot Mobile View
+  mascotMobileContainer: {
+    padding: 20,
+    alignItems: "center",
+    justifyContent: "center",
+    flexGrow: 1,
+    backgroundColor: "#F4F1EA",
+  },
+  mascotMobileCard: {
+    backgroundColor: "#FFFFFF",
+    borderRadius: 16,
+    borderWidth: 2,
+    borderColor: "#000000",
+    padding: 24,
+    width: "100%",
+    maxWidth: 350,
+    alignItems: "center",
+    shadowColor: "#000",
+    shadowOffset: { width: 0, height: 4 },
+    shadowOpacity: 0.1,
+    shadowRadius: 6,
+    elevation: 4,
+  },
+  avatarPlaceholderMobile: {
+    width: 120,
+    height: 120,
+    borderRadius: 60,
+    backgroundColor: "#EFEBE9",
+    justifyContent: "center",
+    alignItems: "center",
+    marginBottom: 16,
+    overflow: "hidden",
+    borderWidth: 2,
+    borderColor: "#2E7D32",
+  },
+  spriteImageMobile: {
+    width: "80%",
+    height: "80%",
+  },
+  usernameMobile: {
+    fontSize: 22,
+    fontWeight: "800",
+    color: "#2E1C0C",
+    marginBottom: 4,
+  },
+  subtextMobile: {
+    fontSize: 14,
+    color: "#795548",
+    fontWeight: "600",
+    marginBottom: 12,
+  },
+  mascotDivider: {
+    height: 2,
+    backgroundColor: "#F0F0F0",
+    width: "100%",
+    marginVertical: 16,
+  },
+  mascotStatsContainer: {
+    flexDirection: "row",
+    justifyContent: "space-around",
+    width: "100%",
+    gap: 12,
+  },
+  mascotStatItem: {
+    flexDirection: "row",
+    alignItems: "center",
+    gap: 8,
+    backgroundColor: "#F5F5F5",
+    paddingVertical: 10,
+    paddingHorizontal: 12,
+    borderRadius: 10,
+    borderWidth: 1.5,
+    borderColor: "#E0E0E0",
+    flex: 1,
+  },
+  mascotStatIcon: {
+    fontSize: 20,
+  },
+  mascotStatValue: {
+    fontSize: 14,
+    fontWeight: "700",
+    color: "#000000",
+  },
+  mascotStatLabel: {
+    fontSize: 10,
+    color: "#795548",
+    fontWeight: "600",
+  },
 
 }); 

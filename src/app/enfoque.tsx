@@ -8,7 +8,11 @@ import {
   View,
 } from "react-native";
 
-export default function EnfoqueScreen() {
+type Props = {
+  onNavigate?: (screen: string, params?: any) => void;
+};
+
+export default function EnfoqueScreen({ onNavigate }: Props) {
   const [selectedMode, setSelectedMode] = useState(2);
   const [selectedMateria, setSelectedMateria] = useState("Química");
   const [mostrarMaterias, setMostrarMaterias] = useState(false);
@@ -186,16 +190,24 @@ export default function EnfoqueScreen() {
 
     <TouchableOpacity
       style={styles.startButton}
-      onPress={() =>
-        router.push({
-          pathname: "/temporizador",
-          params: {
+      onPress={() => {
+        if (onNavigate) {
+          onNavigate("temporizador", {
             minutos: modoSeleccionado?.minutos ?? 25,
             modo: modoSeleccionado?.nombre,
             materia: selectedMateria,
-          },
-        })
-      }
+          });
+        } else {
+          router.push({
+            pathname: "/temporizador",
+            params: {
+              minutos: modoSeleccionado?.minutos ?? 25,
+              modo: modoSeleccionado?.nombre,
+              materia: selectedMateria,
+            },
+          });
+        }
+      }}
     >
       <Text style={styles.playIcon}>▶</Text>
 

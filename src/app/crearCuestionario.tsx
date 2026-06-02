@@ -2,7 +2,11 @@ import { useRouter } from 'expo-router';
 import { useState } from 'react';
 import { Alert, ScrollView, StyleSheet, Text, TextInput, TouchableOpacity, View } from 'react-native';
 
-export default function CreadorScreen() {
+type Props = {
+  onFinalize?: () => void;
+};
+
+export default function CreadorScreen({ onFinalize }: Props) {
   const router = useRouter();
 
   // --- ESTADOS ---
@@ -61,7 +65,13 @@ export default function CreadorScreen() {
         [
           { 
             text: "Ir al Menú", 
-            onPress: () => router.back() // Vuelve a la pantalla anterior
+            onPress: () => {
+              if (onFinalize) {
+                onFinalize();
+              } else {
+                router.back();
+              }
+            }
           }
         ]
       );
@@ -83,6 +93,14 @@ export default function CreadorScreen() {
       <ScrollView contentContainerStyle={styles.scrollContent}>
         
         <View style={styles.encabezado}>
+          {onFinalize && (
+            <TouchableOpacity 
+              style={{ alignSelf: 'flex-start', backgroundColor: '#E8F5E9', paddingVertical: 6, paddingHorizontal: 12, borderRadius: 20, marginBottom: 12, borderWidth: 1, borderColor: '#C8E6C9' }} 
+              onPress={onFinalize}
+            >
+              <Text style={{ fontSize: 13, fontWeight: '700', color: '#2E7D32' }}>◀ Volver al Menú</Text>
+            </TouchableOpacity>
+          )}
           <Text style={styles.titulo}>Crear Cuestionario</Text>
           <Text style={styles.contador}>
             Preguntas añadidas: {preguntasGuardadas.length} / 30

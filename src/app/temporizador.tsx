@@ -7,9 +7,18 @@ import {
   View,
 } from "react-native";
 
-export default function TemporizadorScreen() {
-  const { minutos, modo, materia } =
-    useLocalSearchParams();
+type Props = {
+  minutos?: number;
+  modo?: string;
+  materia?: string;
+  onFinalize?: () => void;
+};
+
+export default function TemporizadorScreen({ minutos: propsMinutos, modo: propsModo, materia: propsMateria, onFinalize }: Props = {}) {
+  const params = useLocalSearchParams();
+  const minutos = propsMinutos ?? params.minutos;
+  const modo = propsModo ?? params.modo;
+  const materia = propsMateria ?? params.materia;
 
   const tiempoInicial =
     Number(minutos || 25) * 60;
@@ -118,9 +127,13 @@ export default function TemporizadorScreen() {
 
           <TouchableOpacity
             style={styles.stop}
-            onPress={() =>
-              setSegundos(0)
-            }
+            onPress={() => {
+              if (onFinalize) {
+                onFinalize();
+              } else {
+                setSegundos(0);
+              }
+            }}
           >
             <Text style={{ color: "#fff" }}>
               ■
