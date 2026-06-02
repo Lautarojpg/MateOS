@@ -1,6 +1,5 @@
 import { useState } from 'react';
 import { ScrollView, StyleSheet, Text, TouchableOpacity, View } from 'react-native';
-import Header from "../components/header";
 
 const preguntas = [
   {
@@ -204,7 +203,6 @@ export default function CuestionarioScreen() {
 
   return (
     <View style={styles.container}>
-      <Header />
       <View style={styles.content}>
         
         <Text style={styles.progreso}>

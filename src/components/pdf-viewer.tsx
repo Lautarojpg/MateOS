@@ -6,7 +6,11 @@ import { router } from "expo-router";
 
 const STORAGE_KEY = "pdf_last_page_native_IMG06_ImageRestoration";
 
-export default function PdfViewer() {
+type Props = {
+  onFinalize?: () => void;
+};
+
+export default function PdfViewer({ onFinalize }: Props) {
   const source = require("../../assets/pdf/IMG06_ImageRestoration.pdf");
   
   const [initialPage, setInitialPage] = useState<number | null>(null);
@@ -74,8 +78,12 @@ export default function PdfViewer() {
     } catch (e) {
       console.error("Failed to clear page on finalize", e);
     }
-    // Redirect to home screen "/"
-    router.replace("/");
+    // Si viene del dashboard, volvemos al inicio sin navegar con router
+    if (onFinalize) {
+      onFinalize();
+    } else {
+      router.replace("/");
+    }
   };
 
   const handleInputChange = (text: string) => {

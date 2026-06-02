@@ -203,7 +203,8 @@ export default function BibliotecaScreen({ onNavigate }: Props = {}) {
 
                 <TouchableOpacity
                     style={styles.openButton}
-                    onPress={() => onNavigate ? onNavigate('lector') : router.push('/lector')}>
+                    onPress={() => onNavigate?.('lector')}
+                >
                     <Text style={styles.openButtonText}>
                         Abrir PDF
                     </Text>

@@ -14,18 +14,18 @@ import BibliotecaScreen from "../app/apuntes";
 import EnfoqueScreen from "../app/enfoque";
 import MenuCuestionarioScreen from "../app/menuCuestionario";
 import TiendaScreen from "../app/tienda";
+import PdfViewer from "../app/lector";
 
 // ── Tipos ──────────────────────────────────────────────────────────────────────
 const MENU_ITEMS = [
   { screen: "inicio", icon: "🏠", label: "Inicio" },
   { screen: "enfoque", icon: "🎯", label: "Enfoque" },
   { screen: "apuntes", icon: "📚", label: "Apuntes" },
-  { screen: "lector", icon: "📖", label: "Lector" },
   { screen: "cuestionario", icon: "❓", label: "Cuestionarios" },
   { screen: "tienda", icon: "🛒", label: "Tienda" },
 ] as const;
 
-type Screen = typeof MENU_ITEMS[number]["screen"];
+type Screen = typeof MENU_ITEMS[number]["screen"] | "lector";
 type TipoEvento = "parcial" | "entrega" | "coloquio" | "clase" | "reunion";
 
 type Evento = {
@@ -240,7 +240,7 @@ function CalendarioJunio({
             if (dia === null) return <View key={di} style={styles.calendarDayEmpty} />;
             const tieneEventos = !!eventos[dia];
             const esSeleccionado = dia === diaSeleccionado;
-            const esHoy = dia === 1;
+            const esHoy = dia === new Date().getDate();
 
             return (
               <TouchableOpacity
@@ -350,7 +350,7 @@ export default function HomeScreen() {
   const { width } = useWindowDimensions();
   const isMobile = width < 768;
   const [currentScreen, setCurrentScreen] = useState<Screen>("inicio");
-  const [diaSeleccionado, setDiaSeleccionado] = useState<number>(1);
+  const [diaSeleccionado, setDiaSeleccionado] = useState<number>(new Date().getDate());
   const [eventos, setEventos] = useState<EventosMap>(EVENTOS_INICIALES);
   const [modalVisible, setModalVisible] = useState(false);
 
@@ -378,7 +378,8 @@ export default function HomeScreen() {
   const renderMainContent = () => {
     switch (currentScreen) {
       case "enfoque": return <EnfoqueScreen />;
-      case "apuntes": return <BibliotecaScreen />;
+      case "lector": return <PdfViewer onFinalize={() => navigateTo("inicio")} />;
+      case "apuntes": return <BibliotecaScreen onNavigate={(s) => navigateTo(s as Screen)} />;
       case "cuestionario": return <MenuCuestionarioScreen />;
       case "tienda": return <TiendaScreen />;
       default:

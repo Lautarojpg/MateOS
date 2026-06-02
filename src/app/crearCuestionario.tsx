@@ -1,7 +1,6 @@
 import { useRouter } from 'expo-router';
 import { useState } from 'react';
 import { Alert, ScrollView, StyleSheet, Text, TextInput, TouchableOpacity, View } from 'react-native';
-import Header from "../components/header";
 
 export default function CreadorScreen() {
   const router = useRouter();
@@ -80,7 +79,6 @@ export default function CreadorScreen() {
 
   return (
     <View style={styles.container}>
-      <Header />
       
       <ScrollView contentContainerStyle={styles.scrollContent}>
         

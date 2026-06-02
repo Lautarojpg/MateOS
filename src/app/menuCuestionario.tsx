@@ -1,6 +1,6 @@
 import { useRouter } from 'expo-router'; // Importamos el router para viajar entre pantallas
 import { StyleSheet, Text, TouchableOpacity, View } from 'react-native';
-import Header from "../components/header";
+
 
 export default function MenuCuestionarioScreen() {
   const router = useRouter(); // Inicializamos el router
