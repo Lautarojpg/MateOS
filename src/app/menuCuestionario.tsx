@@ -1,7 +1,11 @@
 import { useRouter } from 'expo-router';
 import { StyleSheet, Text, TouchableOpacity, View, useWindowDimensions } from 'react-native';
 
-export default function MenuCuestionarioScreen() {
+type Props = {
+  onNavigate?: (screen: string) => void;
+};
+
+export default function MenuCuestionarioScreen({ onNavigate }: Props) {
   const router = useRouter(); 
   const { width } = useWindowDimensions();
   const isSmallScreen = width < 380;
@@ -16,7 +20,13 @@ export default function MenuCuestionarioScreen() {
         {/* OPCIÓN 1: Crear el propio cuestionario */}
         <TouchableOpacity 
           style={styles.tarjetaOpcion}
-          onPress={() => router.push('/crearCuestionario')}
+          onPress={() => {
+            if (onNavigate) {
+              onNavigate('crearCuestionario');
+            } else {
+              router.push('/crearCuestionario');
+            }
+          }}
         >
           <Text style={styles.tituloTarjeta}> Crear mi cuestionario</Text>
           <Text style={styles.textoTarjeta}>
@@ -27,7 +37,13 @@ export default function MenuCuestionarioScreen() {
         {/* OPCIÓN 2: IA (Premium - Funcionalidad de prueba) */}
         <TouchableOpacity 
           style={[styles.tarjetaOpcion, styles.tarjetaPremium]}
-          onPress={() => router.push('/cuestionario')} 
+          onPress={() => {
+            if (onNavigate) {
+              onNavigate('cuestionarioPlay');
+            } else {
+              router.push('/cuestionario');
+            }
+          }} 
         >
           <View style={styles.encabezadoPremium}>
             <Text style={styles.tituloTarjetaIA}> Generado por IA</Text>

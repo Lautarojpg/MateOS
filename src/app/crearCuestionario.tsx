@@ -101,23 +101,19 @@ export default function CreadorScreen({ onFinalize }: Props) {
       <ScrollView contentContainerStyle={styles.scrollContent}>
         
         <View style={styles.encabezado}>
-          {onFinalize && (
-            <TouchableOpacity 
-              style={{ alignSelf: 'flex-start', backgroundColor: '#E8F5E9', paddingVertical: 6, paddingHorizontal: 12, borderRadius: 20, marginBottom: 12, borderWidth: 1, borderColor: '#C8E6C9' }} 
-              onPress={onFinalize}
-            >
-              <Text style={{ fontSize: 13, fontWeight: '700', color: '#2E7D32' }}>◀ Volver al Menú</Text>
-            </TouchableOpacity>
-          )}
-
           {/* BOTÓN PARA VOLVER AL MENÚ */}
-        <TouchableOpacity 
-          style={styles.botonVolver} 
-          // Cambiamos router.back() por router.push() con el nombre de tu ruta
-          onPress={() => router.push('/')}
-        >
-          <Text style={styles.textoBotonVolver}>◀ Volver al Menú</Text>
-        </TouchableOpacity>
+          <TouchableOpacity 
+            style={styles.botonVolver} 
+            onPress={() => {
+              if (onFinalize) {
+                onFinalize();
+              } else {
+                router.push('/');
+              }
+            }}
+          >
+            <Text style={styles.textoBotonVolver}>◀ Volver al Menú</Text>
+          </TouchableOpacity>
 
           <Text style={styles.titulo}>Crear Cuestionario</Text>
           <Text style={styles.contador}>

@@ -137,7 +137,16 @@ export default function CuestionarioScreen({ onFinalize }: Props) {
         {/* Cambiamos el View por un ScrollView para poder deslizar hacia abajo */}
         <ScrollView contentContainerStyle={styles.scrollContent}>
 
-          <TouchableOpacity style={styles.botonVolver} onPress={() => router.push('/')}>
+          <TouchableOpacity 
+            style={styles.botonVolver} 
+            onPress={() => {
+              if (onFinalize) {
+                onFinalize();
+              } else {
+                router.push('/');
+              }
+            }}
+          >
             <Text style={styles.textoBotonVolver}>◀ Volver al Menú</Text>
           </TouchableOpacity>
 
@@ -223,9 +232,18 @@ export default function CuestionarioScreen({ onFinalize }: Props) {
 
   return (
     <View style={styles.container}>
-      <View style={styles.content}>
+      <ScrollView contentContainerStyle={styles.scrollContent}>
       
-        <TouchableOpacity style={styles.botonVolver} onPress={() => router.push('/')}>
+        <TouchableOpacity 
+          style={styles.botonVolver} 
+          onPress={() => {
+            if (onFinalize) {
+              onFinalize();
+            } else {
+              router.push('/');
+            }
+          }}
+        >
           <Text style={styles.textoBotonVolver}>◀ Salir del Repaso</Text>
         </TouchableOpacity>
 
@@ -267,9 +285,7 @@ export default function CuestionarioScreen({ onFinalize }: Props) {
           </Text>
         </TouchableOpacity>
 
-
-
-      </View>
+      </ScrollView>
     </View>
   );
 }
