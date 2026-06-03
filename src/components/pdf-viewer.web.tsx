@@ -140,7 +140,7 @@ export default function PdfViewer() {
           style={styles.finalizedSprite}
           resizeMode="contain"
         />
-        <Text style={styles.finalizedText}>🧉 Carpi se tomó 10 mates 🧉</Text>
+        <Text style={styles.finalizedText}> Carpi se tomó 10 mates </Text>
       </Animated.View>
     );
   }
