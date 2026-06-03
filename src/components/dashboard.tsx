@@ -416,10 +416,10 @@ export default function HomeScreen() {
               ]}
             >
               {[
-                { icon: "⏱️", val: "0", lbl: "min hoy", bg: "#E8F5E9" },
-                { icon: "🎯", val: "0%", lbl: "enfoque", bg: "#EFEBE9" },
-                { icon: "✅", val: "0", lbl: "completadas", bg: "#E8F5E9" },
-                { icon: "⚠️", val: "0", lbl: "pendientes", bg: "#FDF5E6" },
+                { icon: "⏱️", val: "124", lbl: "min hoy", bg: "#E8F5E9" },
+                { icon: "🎯", val: "48%", lbl: "enfoque", bg: "#EFEBE9" },
+                { icon: "✅", val: "1", lbl: "completadas", bg: "#E8F5E9" },
+                { icon: "⚠️", val: "1", lbl: "pendientes", bg: "#FDF5E6" },
               ].map((m) => (
                 <View key={m.lbl} style={[styles.metricCard, { backgroundColor: m.bg }]}>
                   <Text style={styles.metricIcon}>{m.icon}</Text>
@@ -475,7 +475,7 @@ export default function HomeScreen() {
             <Text style={styles.badgeTextBrown}>🧉 0</Text>
           </View>
           <View style={[styles.headerBadge, { backgroundColor: "#FFEBE0" }]}>
-            <Text style={styles.badgeTextOrange}>🔥 1 días</Text>
+            <Text style={styles.badgeTextOrange}>🔥 5 días</Text>
           </View>
         </View>
       </View>
