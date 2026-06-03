@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from "react";
-import { View, StyleSheet, Text, TouchableOpacity, TextInput } from "react-native";
+import { View, StyleSheet, Text, TouchableOpacity, TextInput, Image, Animated } from "react-native";
 import { router } from "expo-router";
 
 const STORAGE_KEY = "pdf_last_page_web_IMG06_ImageRestoration";
@@ -15,6 +15,8 @@ export default function PdfViewer() {
   const [currentPage, setCurrentPage] = useState<number>(1);
   const [totalPages, setTotalPages] = useState<number>(0);
   const [pageInputValue, setPageInputValue] = useState<string>("1");
+  const [showFinalized, setShowFinalized] = useState(false);
+  const [fadeAnim] = useState(() => new Animated.Value(0));
 
   // Load last saved page from localStorage on mount
   useEffect(() => {
@@ -101,9 +103,23 @@ export default function PdfViewer() {
     } catch (e) {
       console.error("Failed to clear page from localStorage on finalize", e);
     }
-    // Redirect to home screen "/"
-    router.replace("/");
+    // Show the finalization overlay with sprite
+    setShowFinalized(true);
+    Animated.timing(fadeAnim, {
+      toValue: 1,
+      duration: 400,
+      useNativeDriver: true,
+    }).start();
   };
+
+  // After showing the finalized overlay for 2 seconds, navigate home
+  useEffect(() => {
+    if (!showFinalized) return;
+    const timer = setTimeout(() => {
+      router.replace("/");
+    }, 2000);
+    return () => clearTimeout(timer);
+  }, [showFinalized]);
 
   // We append standard PDF open parameters:
   // - page=currentPage (displays only that specific page)
@@ -114,6 +130,20 @@ export default function PdfViewer() {
   const fullIframeUrl = `${pdfUrl}#page=${currentPage}&toolbar=0&navpanes=0&scrollbar=0&view=Fit`;
 
   const isLastPage = totalPages > 0 && currentPage >= totalPages;
+
+  // ── Finalization overlay ──────────────────────────────────────
+  if (showFinalized) {
+    return (
+      <Animated.View style={[styles.finalizedOverlay, { opacity: fadeAnim }]}>
+        <Image
+          source={require("../../assets/sprite/VictorioSprite.gif")}
+          style={styles.finalizedSprite}
+          resizeMode="contain"
+        />
+        <Text style={styles.finalizedText}>🧉 Carpi se tomó 10 mates 🧉</Text>
+      </Animated.View>
+    );
+  }
 
   return (
     <View style={styles.container}>
@@ -330,5 +360,27 @@ const styles = StyleSheet.create({
     bottom: 0,
     backgroundColor: "transparent",
     zIndex: 10,
+  },
+
+  // ── Finalization overlay ──────────────────────────────────────
+  finalizedOverlay: {
+    flex: 1,
+    backgroundColor: "#0a0a0a",
+    justifyContent: "center",
+    alignItems: "center",
+    gap: 24,
+  },
+  finalizedSprite: {
+    width: 220,
+    height: 220,
+  },
+  finalizedText: {
+    color: "#10B981",
+    fontSize: 24,
+    fontWeight: "800",
+    textAlign: "center",
+    textShadowColor: "rgba(16, 185, 129, 0.4)",
+    textShadowOffset: { width: 0, height: 0 },
+    textShadowRadius: 12,
   },
 });

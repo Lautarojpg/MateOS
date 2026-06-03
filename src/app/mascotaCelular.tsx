@@ -1,3 +1,4 @@
+import React, { useState, useEffect } from "react";
 import {
   StyleSheet,
   View,
@@ -11,6 +12,20 @@ type Props = {
   onFinalize?: () => void;
 };
 export default function MascotaCelular({ onFinalize }: Props) {
+  const [isEnojado, setIsEnojado] = useState(false);
+
+  // Alternate between happy and angry sprite every 3 seconds
+  useEffect(() => {
+    const interval = setInterval(() => {
+      setIsEnojado((prev) => !prev);
+    }, 3000);
+    return () => clearInterval(interval);
+  }, []);
+
+  const spriteSource = isEnojado
+    ? require("../../assets/sprite/VictorioSpriteEnojado.gif")
+    : require("../../assets/sprite/VictorioSprite.gif");
+
   return (
     <ImageBackground
       source={require("../../assets/images/descarga.jpg")}
@@ -41,7 +56,7 @@ export default function MascotaCelular({ onFinalize }: Props) {
 
         <View style={styles.mascotArea}>
         <Image
-            source={require("../../assets/sprite/carpincho.gif")}
+            source={spriteSource}
             style={styles.spriteImage}
             resizeMode="contain"
         />

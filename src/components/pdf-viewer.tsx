@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from "react";
-import { StyleSheet, View, Text, TouchableOpacity, ActivityIndicator, TextInput, Platform } from "react-native";
+import { StyleSheet, View, Text, TouchableOpacity, ActivityIndicator, TextInput, Platform, Image, Animated } from "react-native";
 import AsyncStorage from "@react-native-async-storage/async-storage";
 import { router } from "expo-router";
 
@@ -25,6 +25,8 @@ export default function PdfViewer({ onFinalize }: Props) {
   const [currentPage, setCurrentPage] = useState<number>(1);
   const [totalPages, setTotalPages] = useState<number>(0);
   const [pageInputValue, setPageInputValue] = useState<string>("1");
+  const [showFinalized, setShowFinalized] = useState(false);
+  const [fadeAnim] = useState(() => new Animated.Value(0));
 
   // Load the last read page from AsyncStorage on mount
   useEffect(() => {
@@ -86,13 +88,27 @@ export default function PdfViewer({ onFinalize }: Props) {
     } catch (e) {
       console.error("Failed to clear page on finalize", e);
     }
-    // Si viene del dashboard, volvemos al inicio sin navegar con router
-    if (onFinalize) {
-      onFinalize();
-    } else {
-      router.replace("/");
-    }
+    // Show the finalization overlay with sprite
+    setShowFinalized(true);
+    Animated.timing(fadeAnim, {
+      toValue: 1,
+      duration: 400,
+      useNativeDriver: true,
+    }).start();
   };
+
+  // After showing the finalized overlay for 2 seconds, navigate home
+  useEffect(() => {
+    if (!showFinalized) return;
+    const timer = setTimeout(() => {
+      if (onFinalize) {
+        onFinalize();
+      } else {
+        router.replace("/");
+      }
+    }, 2000);
+    return () => clearTimeout(timer);
+  }, [showFinalized]);
 
   const handleInputChange = (text: string) => {
     setPageInputValue(text);
@@ -106,6 +122,20 @@ export default function PdfViewer({ onFinalize }: Props) {
       setPageInputValue(currentPage.toString());
     }
   };
+
+  // ── Finalization overlay ──────────────────────────────────────
+  if (showFinalized) {
+    return (
+      <Animated.View style={[styles.finalizedOverlay, { opacity: fadeAnim }]}>
+        <Image
+          source={require("../../assets/sprite/VictorioSprite.gif")}
+          style={styles.finalizedSprite}
+          resizeMode="contain"
+        />
+        <Text style={styles.finalizedText}>🧉 Carpi se tomó 10 mates 🧉</Text>
+      </Animated.View>
+    );
+  }
 
   if (expoGoWarning || !Pdf) {
     return (
@@ -454,5 +484,27 @@ const styles = StyleSheet.create({
     color: "#fff",
     fontSize: 14,
     fontWeight: "bold",
+  },
+
+  // ── Finalization overlay ──────────────────────────────────────
+  finalizedOverlay: {
+    flex: 1,
+    backgroundColor: "#0a0a0a",
+    justifyContent: "center",
+    alignItems: "center",
+    gap: 24,
+  },
+  finalizedSprite: {
+    width: 200,
+    height: 200,
+  },
+  finalizedText: {
+    color: "#10B981",
+    fontSize: 22,
+    fontWeight: "800",
+    textAlign: "center",
+    textShadowColor: "rgba(16, 185, 129, 0.4)",
+    textShadowOffset: { width: 0, height: 0 },
+    textShadowRadius: 12,
   },
 });
