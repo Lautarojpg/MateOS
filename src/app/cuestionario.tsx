@@ -1,3 +1,4 @@
+import { useRouter } from 'expo-router';
 import { useState } from 'react';
 import { ScrollView, StyleSheet, Text, TouchableOpacity, View } from 'react-native';
 
@@ -99,6 +100,7 @@ type Props = {
 };
 
 export default function CuestionarioScreen({ onFinalize }: Props) {
+  const router = useRouter();
   const [preguntaActual, setPreguntaActual] = useState(0); 
   const [opcionSeleccionada, setOpcionSeleccionada] = useState<number | null>(null);
   const [puntaje, setPuntaje] = useState(0); 
@@ -134,6 +136,11 @@ export default function CuestionarioScreen({ onFinalize }: Props) {
         
         {/* Cambiamos el View por un ScrollView para poder deslizar hacia abajo */}
         <ScrollView contentContainerStyle={styles.scrollContent}>
+
+          <TouchableOpacity style={styles.botonVolver} onPress={() => router.push('/')}>
+            <Text style={styles.textoBotonVolver}>◀ Volver al Menú</Text>
+          </TouchableOpacity>
+
           <View style={styles.tarjetaResultados}>
             
             <Text style={styles.tituloResultados}>¡Repaso Completado!</Text>
@@ -217,14 +224,11 @@ export default function CuestionarioScreen({ onFinalize }: Props) {
   return (
     <View style={styles.container}>
       <View style={styles.content}>
-        {onFinalize && (
-          <TouchableOpacity 
-            style={{ alignSelf: 'flex-start', backgroundColor: '#E8F5E9', paddingVertical: 6, paddingHorizontal: 12, borderRadius: 20, marginBottom: 12, borderWidth: 1, borderColor: '#C8E6C9' }} 
-            onPress={onFinalize}
-          >
-            <Text style={{ fontSize: 13, fontWeight: '700', color: '#2E7D32' }}>◀ Salir del Repaso</Text>
-          </TouchableOpacity>
-        )}
+      
+        <TouchableOpacity style={styles.botonVolver} onPress={() => router.push('/')}>
+          <Text style={styles.textoBotonVolver}>◀ Salir del Repaso</Text>
+        </TouchableOpacity>
+
         <Text style={styles.progreso}>
           Pregunta {preguntaActual + 1} de {preguntas.length}
         </Text>
@@ -263,13 +267,15 @@ export default function CuestionarioScreen({ onFinalize }: Props) {
           </Text>
         </TouchableOpacity>
 
+
+
       </View>
     </View>
   );
 }
 
 const styles = StyleSheet.create({
-  container: { flex: 1, backgroundColor: '#F8F9F5' },
+  container: { flex: 1, backgroundColor: '#F4F7F5' },
   content: {
     width: '100%', maxWidth: 500, paddingHorizontal: 20, paddingTop: 20, 
     flex: 1, justifyContent: 'center', alignSelf: 'center', 
@@ -339,5 +345,21 @@ const styles = StyleSheet.create({
   },
   textoRespuestaCorrecta: {
     fontSize: 14, color: '#2E7D32', marginTop: 4 // Verde para resaltar cuál era la buena
+  },
+
+  botonVolver: {
+    alignSelf: 'flex-start',
+    backgroundColor: '#E8F5E9',
+    paddingVertical: 8,
+    paddingHorizontal: 16,
+    borderRadius: 20,
+    marginBottom: 20, // Da espacio antes del título
+    borderWidth: 1,
+    borderColor: '#C8E6C9',
+  },
+  textoBotonVolver: {
+    fontSize: 14,
+    fontWeight: '700',
+    color: '#2E7D32',
   }
 });

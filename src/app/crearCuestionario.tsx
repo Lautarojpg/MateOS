@@ -1,6 +1,6 @@
 import { useRouter } from 'expo-router';
 import { useState } from 'react';
-import { Alert, ScrollView, StyleSheet, Text, TextInput, TouchableOpacity, View } from 'react-native';
+import { Alert, Platform, ScrollView, StyleSheet, Text, TextInput, TouchableOpacity, View } from 'react-native';
 
 type Props = {
   onFinalize?: () => void;
@@ -45,39 +45,47 @@ export default function CreadorScreen({ onFinalize }: Props) {
     setOpcionCorrecta(null);
   };
 
-  // --- LÓGICA 2: SIMULAR SUBIDA A LA BASE DE DATOS ---
+// --- LÓGICA 2: SIMULAR SUBIDA A LA BASE DE DATOS ---
   const subirCuestionario = async () => {
     if (preguntasGuardadas.length < 10) {
-      Alert.alert("Faltan preguntas", `Necesitás al menos 10 preguntas. Tenés ${preguntasGuardadas.length}.`);
+      if (Platform.OS === 'web') {
+        window.alert(`Faltan preguntas. Necesitás al menos 10. Tenés ${preguntasGuardadas.length}.`);
+      } else {
+        Alert.alert("Faltan preguntas", `Necesitás al menos 10 preguntas. Tenés ${preguntasGuardadas.length}.`);
+      }
       return;
     }
     
-    try {
-      // ---------------------------------------------------------
-      // ACÁ VA A IR TU LÓGICA REAL EL DÍA DE MAÑANA. Ejemplo:
-      // await api.post('/cuestionarios', { preguntas: preguntasGuardadas });
-      // ---------------------------------------------------------
-
-      // Mostramos el mensaje de éxito y al darle OK, vuelve al menú
+    if (Platform.OS === 'web') {
+      // 🌐 Lógica para el navegador (Web)
+      window.alert("¡Cuestionario creado correctamente! 🎉\n\nFuncionalidad en desarrollo (Próximamente).");
+      
+      // En la web, el código se frena hasta que el usuario le da "Aceptar" al cartel. 
+      // Cuando le da a Aceptar, se ejecuta esto:
+      if (onFinalize) {
+        onFinalize();
+      } else {
+        router.replace('/'); 
+      }
+      
+    } else {
+      // 📱 Lógica para celulares (iOS / Android)
       Alert.alert(
-        "¡Subido correctamente! 🎉", 
-        "Tu cuestionario fue procesado y ya está listo en el sistema.",
+        "¡Cuestionario creado correctamente! 🎉", 
+        "Funcionalidad en desarrollo (Próximamente).",
         [
           { 
-            text: "Ir al Menú", 
+            text: "Ir a la página principal", 
             onPress: () => {
               if (onFinalize) {
                 onFinalize();
               } else {
-                router.back();
+                router.replace('/'); 
               }
             }
           }
         ]
       );
-      
-    } catch (error) {
-      Alert.alert("Error", "Hubo un problema al subir el cuestionario a nuestros servidores.");
     }
   };
 
@@ -101,6 +109,16 @@ export default function CreadorScreen({ onFinalize }: Props) {
               <Text style={{ fontSize: 13, fontWeight: '700', color: '#2E7D32' }}>◀ Volver al Menú</Text>
             </TouchableOpacity>
           )}
+
+          {/* BOTÓN PARA VOLVER AL MENÚ */}
+        <TouchableOpacity 
+          style={styles.botonVolver} 
+          // Cambiamos router.back() por router.push() con el nombre de tu ruta
+          onPress={() => router.push('/')}
+        >
+          <Text style={styles.textoBotonVolver}>◀ Volver al Menú</Text>
+        </TouchableOpacity>
+
           <Text style={styles.titulo}>Crear Cuestionario</Text>
           <Text style={styles.contador}>
             Preguntas añadidas: {preguntasGuardadas.length} / 30
@@ -195,7 +213,7 @@ export default function CreadorScreen({ onFinalize }: Props) {
 }
 
 const styles = StyleSheet.create({
-  container: { flex: 1, backgroundColor: '#F8F9F5' },
+  container: { flex: 1, backgroundColor: "#F4F7F5" },
   scrollContent: { paddingHorizontal: 20, paddingTop: 20, paddingBottom: 40, maxWidth: 600, alignSelf: 'center', width: '100%' },
   encabezado: { marginBottom: 20, alignItems: 'center' },
   titulo: { fontSize: 24, fontWeight: 'bold', color: '#2E7D32', marginBottom: 5 },
@@ -236,5 +254,21 @@ const styles = StyleSheet.create({
   botonFinalizar: { padding: 16, borderRadius: 12, alignItems: 'center', marginTop: 10 },
   botonSiguienteActivo: { backgroundColor: '#2E7D32' },
   botonSiguienteInactivo: { backgroundColor: '#BDBDBD' },
-  textoSiguiente: { color: '#FFFFFF', fontSize: 18, fontWeight: 'bold' }
+  textoSiguiente: { color: '#FFFFFF', fontSize: 18, fontWeight: 'bold' },
+
+  botonVolver: {
+    alignSelf: 'flex-start',
+    backgroundColor: '#E8F5E9',
+    paddingVertical: 8,
+    paddingHorizontal: 16,
+    borderRadius: 20,
+    marginBottom: 20, // Da espacio antes del título
+    borderWidth: 1,
+    borderColor: '#C8E6C9',
+  },
+  textoBotonVolver: {
+    fontSize: 14,
+    fontWeight: '700',
+    color: '#2E7D32',
+  }
 });

@@ -11,14 +11,14 @@ import {
   TouchableOpacity, useWindowDimensions, View
 } from "react-native";
 import BibliotecaScreen from "../app/apuntes";
-import EnfoqueScreen from "../app/enfoque";
-import MenuCuestionarioScreen from "../app/menuCuestionario";
-import TiendaScreen from "../app/tienda";
-import PdfViewer from "../app/lector";
-import TemporizadorScreen from "../app/temporizador";
 import CrearCuestionarioScreen from "../app/crearCuestionario";
 import CuestionarioPlayScreen from "../app/cuestionario";
+import EnfoqueScreen from "../app/enfoque";
+import PdfViewer from "../app/lector";
 import MascotaCelular from "../app/mascotaCelular";
+import MenuCuestionarioScreen from "../app/menuCuestionario";
+import TemporizadorScreen from "../app/temporizador";
+import TiendaScreen from "../app/tienda";
 // ── Tipos ──────────────────────────────────────────────────────────────────────
 const MENU_ITEMS = [
   { screen: "inicio", icon: "🏠", label: "Inicio" },
@@ -573,7 +573,7 @@ export default function HomeScreen() {
 
 // ── Estilos ───────────────────────────────────────────────────────────────────
 const styles = StyleSheet.create({
-  container: { flex: 1, backgroundColor: "#F4F1EA" },
+  container: { flex: 1, backgroundColor: "#F4F7F5" },
   header: {
     height: 65,
     backgroundColor: "#FFFFFF",
